@@ -1,0 +1,98 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 150;
+  background: #0a0a0d;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-16px);
+  transition:
+    opacity 0.3s ease,
+    transform 0.3s ease;
+}
+
+.open {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+
+.close {
+  position: absolute;
+  top: 20px;
+  right: 24px;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.closeLine,
+.closeLineAlt {
+  position: absolute;
+  width: 20px;
+  height: 2px;
+  background: #f7f7f5;
+}
+
+.closeLine {
+  transform: rotate(45deg);
+}
+
+.closeLineAlt {
+  transform: rotate(-45deg);
+}
+
+.items {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 0 32px;
+  align-items: flex-start;
+}
+
+.item {
+  font-family: inherit;
+  font-size: 32px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  padding: 10px 0;
+  color: #8a8b94;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.itemActive {
+  color: #f7f7f5;
+}
+
+.links {
+  display: flex;
+  gap: 22px;
+  padding: 40px 32px 0;
+  flex-wrap: wrap;
+}
+
+.links a,
+.themeButton {
+  color: #7a7b85;
+  font-size: 14px;
+  font-family: inherit;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+.links a:hover,
+.themeButton:hover {
+  color: var(--accent-strong);
+}

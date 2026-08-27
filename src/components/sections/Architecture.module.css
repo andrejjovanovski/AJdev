@@ -1,0 +1,101 @@
+.section {
+  padding: 140px 28px;
+}
+
+.row {
+  max-width: 980px;
+  margin: 0 auto;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.track {
+  position: absolute;
+  left: 4%;
+  right: 4%;
+  top: 24px;
+  height: 1px;
+  background: var(--border-c);
+  z-index: 0;
+}
+
+.pulse {
+  position: absolute;
+  top: 20px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 14px var(--accent);
+  animation: flowRight 3.6s linear infinite;
+  z-index: 1;
+}
+
+.node {
+  position: relative;
+  z-index: 2;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  outline: none;
+}
+
+.label {
+  width: fit-content;
+  padding: 11px 18px;
+  border-radius: 12px;
+  background: var(--arch-node-bg);
+  border: 1px solid var(--border-c);
+  font-size: 13px;
+  color: var(--text2);
+  font-weight: 600;
+  white-space: nowrap;
+  transition: border-color 0.2s;
+}
+
+.node:hover .label,
+.node:focus .label {
+  border-color: rgba(91, 127, 255, 0.5);
+}
+
+.tooltip {
+  position: absolute;
+  top: 100%;
+  margin-top: 10px;
+  width: 210px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: var(--panel-bg);
+  border: 1px solid var(--accent-line);
+  font-size: 12px;
+  color: var(--text4);
+  line-height: 1.5;
+  z-index: 10;
+  box-shadow: var(--shadow-panel);
+}
+
+@media (max-width: 860px) {
+  .section {
+    padding: 90px 20px;
+  }
+
+  .row {
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .track,
+  .pulse {
+    display: none;
+  }
+
+  .tooltip {
+    position: static;
+    width: 100%;
+    max-width: 260px;
+  }
+}

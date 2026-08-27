@@ -1,0 +1,35 @@
+.list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.tag {
+  display: inline-block;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.default {
+  background: var(--surface-b);
+  border: 1px solid var(--border-b);
+  color: var(--text4);
+}
+
+.accent {
+  background: var(--accent-soft);
+  border: 1px solid var(--accent-line);
+  color: var(--accent-tint);
+  font-weight: 600;
+  letter-spacing: 0.03em;
+}
+
+.md {
+  padding: 5px 12px;
+  font-size: 12px;
+}
+
+.sm {
+  padding: 4px 9px;
+  font-size: 10.5px;
+}

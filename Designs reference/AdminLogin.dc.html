@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@600&display=swap" rel="stylesheet">
+  <style>
+    body { margin: 0; background: #F5F6F8; }
+    a { color: #5B7FFF; }
+    a:hover { color: #4a6ae6; }
+  </style>
+</helmet>
+
+<div style="min-height: 100vh; display: flex; align-items: center; justify-content: center; font-family: 'Inter', sans-serif; color: #14151A; padding: 20px; box-sizing: border-box;">
+  <div style="width: 100%; max-width: 380px;">
+    <div style="text-align: center; margin-bottom: 28px;">
+      <div style="font-family: 'JetBrains Mono', monospace; font-weight: 600; font-size: 20px; letter-spacing: -0.02em;">AJ<span style="color:#5B7FFF;">.</span>dev</div>
+      <div style="font-size: 13px; color: #8A8F98; margin-top: 4px;">Content Admin</div>
+    </div>
+
+    <div style="background: #fff; border: 1px solid #E5E7EB; border-radius: 14px; padding: 28px; box-shadow: 0 1px 2px rgba(16,24,40,0.04);">
+      <div style="font-size: 17px; font-weight: 700; margin-bottom: 4px;">Sign in</div>
+      <div style="font-size: 13px; color: #8A8F98; margin-bottom: 20px;">Prototype login — any email/password combination works.</div>
+
+      <form onSubmit="{{ onSubmit }}">
+        <div style="margin-bottom: 14px;">
+          <div style="font-size: 12.5px; color: #6B7280; margin-bottom: 6px;">Email</div>
+          <input type="email" required="true" value="{{ email }}" onChange="{{ onEmailChange }}" placeholder="you@example.com" style="width: 100%; box-sizing: border-box; padding: 10px 12px; border: 1px solid #D1D5DB; border-radius: 8px; font-size: 14px; font-family: inherit;" />
+        </div>
+        <div style="margin-bottom: 8px;">
+          <div style="font-size: 12.5px; color: #6B7280; margin-bottom: 6px;">Password</div>
+          <input type="password" required="true" value="{{ password }}" onChange="{{ onPasswordChange }}" placeholder="••••••••" style="width: 100%; box-sizing: border-box; padding: 10px 12px; border: 1px solid #D1D5DB; border-radius: 8px; font-size: 14px; font-family: inherit;" />
+        </div>
+
+        <sc-if value="{{ hasError }}" hint-placeholder-val="{{ false }}">
+          <div style="font-size: 12.5px; color: #C0392B; margin-bottom: 10px;">{{ errorMessage }}</div>
+        </sc-if>
+
+        <button type="submit" style="width: 100%; margin-top: 10px; padding: 11px; border: none; border-radius: 8px; background: #5B7FFF; color: #fff; font-size: 14.5px; font-weight: 600; cursor: pointer; font-family: inherit;">Sign in</button>
+      </form>
+    </div>
+
+    <div style="text-align: center; margin-top: 18px;">
+      <a href="Portfolio.dc.html" style="font-size: 12.5px; text-decoration: none;">← Back to site</a>
+    </div>
+  </div>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { email: '', password: '', error: '' };
+
+  submit(e) {
+    e.preventDefault();
+    if (!this.state.email || !this.state.password) {
+      this.setState({ error: 'Enter an email and password.' });
+      return;
+    }
+    if (typeof localStorage !== 'undefined') {
+      localStorage.setItem('aj-admin-auth', 'true');
+      localStorage.setItem('aj-admin-email', this.state.email);
+    }
+    window.location.href = 'AdminDashboard.dc.html';
+  }
+
+  renderVals() {
+    return {
+      email: this.state.email,
+      password: this.state.password,
+      onEmailChange: (e) => this.setState({ email: e.target.value, error: '' }),
+      onPasswordChange: (e) => this.setState({ password: e.target.value, error: '' }),
+      onSubmit: (e) => this.submit(e),
+      hasError: !!this.state.error,
+      errorMessage: this.state.error,
+    };
+  }
+}
+
+</script>
+</body>
+</html>

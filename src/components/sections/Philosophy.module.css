@@ -1,0 +1,24 @@
+.section {
+  padding: 90px 28px;
+}
+
+.inner {
+  max-width: 780px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.title {
+  font-size: clamp(26px, 4vw, 42px);
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1.2;
+  margin: 0 0 18px;
+}
+
+.subtitle {
+  font-size: clamp(15px, 1.6vw, 18px);
+  color: var(--text3);
+  line-height: 1.6;
+  margin: 0;
+}

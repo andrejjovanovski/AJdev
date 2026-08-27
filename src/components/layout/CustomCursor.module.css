@@ -1,0 +1,32 @@
+.cursor {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(91, 127, 255, 0.8);
+  background: rgba(91, 127, 255, 0.12);
+  pointer-events: none;
+  z-index: 9999;
+  transition:
+    width 0.2s,
+    height 0.2s,
+    border-color 0.2s;
+}
+
+.hovering {
+  width: 52px;
+  height: 52px;
+}
+
+.hideNative,
+.hideNative *:not(input):not(textarea) {
+  cursor: none !important;
+}
+
+@media (hover: none) {
+  .cursor {
+    display: none;
+  }
+}

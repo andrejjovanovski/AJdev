@@ -1,0 +1,39 @@
+.footer {
+  padding: 40px 28px;
+  border-top: 1px solid var(--border-a);
+}
+
+.inner {
+  max-width: 1180px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.credit {
+  font-size: 13px;
+  color: var(--text6);
+}
+
+.links {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
+
+.links a {
+  font-size: 13px;
+  color: var(--text6);
+}
+
+.links a:hover {
+  color: var(--accent);
+}
+
+.stack {
+  font-size: 12px;
+  color: var(--text5);
+}

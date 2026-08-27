@@ -1,0 +1,30 @@
+.centered {
+  text-align: center;
+  margin: 0 auto 60px;
+  max-width: 700px;
+}
+
+.left {
+  text-align: left;
+}
+
+.eyebrow {
+  font-size: 13px;
+  color: var(--accent);
+  margin-bottom: 14px;
+  letter-spacing: 0.06em;
+}
+
+.title {
+  font-size: clamp(30px, 3.6vw, 44px);
+  font-weight: 700;
+  color: var(--text);
+  margin: 0;
+  line-height: 1.12;
+}
+
+.subtitle {
+  font-size: 15px;
+  color: var(--text3);
+  margin: 14px 0 0;
+}

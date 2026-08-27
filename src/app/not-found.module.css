@@ -1,0 +1,23 @@
+.wrap {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.code {
+  color: var(--accent);
+  font-size: 14px;
+}
+
+.message {
+  font-size: 20px;
+  color: var(--text);
+}
+
+.back {
+  color: var(--accent);
+  font-size: 14px;
+}

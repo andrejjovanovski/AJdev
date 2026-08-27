@@ -1,0 +1,149 @@
+.nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  background: transparent;
+  border-bottom: 1px solid transparent;
+  transition:
+    background 0.3s,
+    border-color 0.3s;
+}
+
+.scrolled {
+  background: var(--nav-scrolled);
+  backdrop-filter: blur(16px);
+  border-bottom-color: var(--border-a);
+}
+
+.inner {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 0 28px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.logo {
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+  letter-spacing: -0.02em;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+.dot {
+  color: var(--accent);
+}
+
+.links {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.link {
+  padding: 9px 16px;
+  border-radius: 999px;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  color: var(--text3);
+  background: transparent;
+  border: none;
+  transition:
+    color 0.2s,
+    background 0.2s;
+}
+
+.link:hover {
+  color: var(--text);
+  background: var(--hover-bg);
+}
+
+.active {
+  color: var(--text);
+  background: var(--hover-bg);
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.resume {
+  padding: 9px 18px;
+  border-radius: 999px;
+  background: var(--chip-bg);
+  color: var(--chip-text);
+  font-size: 13px;
+  font-weight: 600;
+  transition:
+    background 0.2s,
+    color 0.2s;
+}
+
+.resume:hover {
+  background: var(--accent);
+  color: #fff;
+}
+
+.burger {
+  display: none;
+  width: 34px;
+  height: 34px;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
+
+.burgerLines {
+  display: block;
+  width: 18px;
+}
+
+.line,
+.line1Open,
+.line2Open,
+.line3Open {
+  display: block;
+  height: 2px;
+  background: var(--text2);
+  margin: 4px 0;
+  transition: all 0.25s;
+}
+
+.line1Open {
+  transform: translateY(6px) rotate(45deg);
+}
+
+.line2Open {
+  opacity: 0;
+}
+
+.line3Open {
+  transform: translateY(-6px) rotate(-45deg);
+}
+
+@media (max-width: 768px) {
+  .links,
+  .actions {
+    display: none;
+  }
+
+  .burger {
+    display: flex;
+  }
+}

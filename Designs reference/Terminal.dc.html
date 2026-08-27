@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: 'JetBrains Mono', monospace; }
+    @keyframes blink { 0%, 49% { opacity: 1; } 50%, 100% { opacity: 0; } }
+    ::selection { background: rgba(91,127,255,0.35); color: #16171C; }
+  </style>
+</helmet>
+
+<div style="{{ rootStyle }}">
+  <div style="{{ containerStyle }}">
+    <div style="{{ headerStyle }}">
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <span style="width: 11px; height: 11px; border-radius: 50%; background: #FF6259;"></span>
+        <span style="width: 11px; height: 11px; border-radius: 50%; background: #FFBD2E;"></span>
+        <span style="width: 11px; height: 11px; border-radius: 50%; background: #28C93F;"></span>
+        <span style="{{ headerLabelStyle }}">terminal-mode — andrej@dev — full screen</span>
+      </div>
+      <div onClick="{{ toggleTheme }}" style="{{ themeToggleStyle }}">
+        <div style="width: 16px; height: 16px; display: flex;" dangerouslySetInnerHTML="{{ themeIconHtml }}"></div>
+      </div>
+    </div>
+    <div ref="{{ bodyRef }}" onClick="{{ focusInput }}" style="padding: 26px 28px; font-size: 14px; line-height: 1.85; flex: 1; overflow-y: auto; cursor: text;">
+      <sc-for list="{{ lines }}" as="line" hint-placeholder-count="1">
+        <div style="color: {{ line.color }}; white-space: pre-wrap;"><a href="{{ line.linkHref }}" onClick="{{ line.onLinkClick }}" style="{{ line.linkStyle }}">{{ line.text }}</a></div>
+      </sc-for>
+      <div style="display: flex; gap: 8px; margin-top: 4px;">
+        <span style="{{ promptUserStyle }}">{{ promptUser }}</span><span style="{{ promptStyle }}">{{ promptChar }}</span>
+        <input ref="{{ inputRef }}" value="{{ input }}" onChange="{{ handleChange }}" onKeyDown="{{ handleKey }}" spellCheck="false" autoComplete="off" style="{{ inputStyle }}"></input>
+      </div>
+    </div>
+  </div>
+
+  <div style="{{ ratingWrapStyle }}">
+    <div style="{{ ratingBubbleStyle }}">
+      <div style="{{ stageRateDisplay }}">
+        <div style="{{ ratingHeadingStyle }}">How was your experience?</div>
+        <div style="display: flex; gap: 6px; justify-content: center;">
+          <sc-for list="{{ stars }}" as="star" hint-placeholder-count="5">
+            <span onClick="{{ star.onClick }}" onMouseEnter="{{ star.onHover }}" onMouseLeave="{{ star.onLeaveHover }}" style="{{ star.style }}">★</span>
+          </sc-for>
+        </div>
+      </div>
+      <div style="{{ stageFeedbackDisplay }}">
+        <div style="{{ ratingSubheadStyle }}">Sorry to hear that — what went wrong?</div>
+        <textarea value="{{ feedbackText }}" onChange="{{ handleFeedbackChange }}" rows="3" placeholder="Tell us what to improve..." style="{{ feedbackTextareaStyle }}"></textarea>
+        <div onClick="{{ submitFeedback }}" style="text-align: center; padding: 9px; border-radius: 8px; background: #5B7FFF; color: #fff; font-size: 13px; font-weight: 600; cursor: pointer;">Send Feedback</div>
+      </div>
+      <div style="{{ stageThanksDisplay }}">
+        <div style="{{ ratingHeadingStyle }}">Thank you for the feedback! 🎉</div>
+      </div>
+    </div>
+    <div style="{{ imgWrapStyle }}">
+      <img src="assets/rate-laptop.png" alt="" style="{{ imgStyleRate }}" />
+      <img src="assets/rate-thinking.png" alt="" style="{{ imgStyleFeedback }}" />
+      <img src="assets/rate-happy.png" alt="" style="{{ imgStyleThanks }}" />
+    </div>
+  </div>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = {
+    lines: [], input: '', data: null,
+    theme: (typeof localStorage !== 'undefined' && localStorage.getItem('aj-theme')) || 'light',
+    contactMode: false, contactStep: null, contactData: { name: '', email: '', message: '' },
+    ratingStage: 'rate', ratingHover: 0, ratingValue: 0, feedbackText: '', ratingVisible: false, ratingTransitioning: false, contentReady: true,
+  };
+
+  themes = {
+    light: {
+      bg: '#F7F7F5', cardTop: '#FDFDFC', cardBottom: '#F3F3F1', cardBorder: 'rgba(10,10,20,0.08)',
+      headerBorder: 'rgba(10,10,20,0.06)', headerLabel: '#8A8B94', toggleBorder: 'rgba(10,10,20,0.13)',
+      dollar: '#5B7FFF', inputColor: '#2A2B33',
+      dim: '#8A8B94', primary: '#2A2B33', secondary: '#5A5B65', accent: '#5B7FFF', error: '#FF7A6E', success: '#5EE6A0', faint: '#9A9BA4', heading: '#5B7FFF',
+      panelBg: '#FFFFFF', panelBorder: 'rgba(91,127,255,0.3)', panelText: '#2A2B33', panelSub: '#2A2B33',
+      inputBg: 'rgba(255,255,255,0.05)', inputBorder: 'rgba(255,255,255,0.12)', inputText: '#16171C',
+    },
+    dark: {
+      bg: '#0B0C0F', cardTop: '#17181E', cardBottom: '#101116', cardBorder: 'rgba(255,255,255,0.1)',
+      headerBorder: 'rgba(255,255,255,0.08)', headerLabel: '#8C8D97', toggleBorder: 'rgba(255,255,255,0.15)',
+      dollar: '#8B9CFF', inputColor: '#E4E4E8',
+      dim: '#8C8D97', primary: '#E4E4E8', secondary: '#B7B8C2', accent: '#8B9CFF', error: '#FF8A7E', success: '#5EE6A0', faint: '#7A7B85', heading: '#8B9CFF',
+      panelBg: '#16171D', panelBorder: 'rgba(139,156,255,0.35)', panelText: '#E4E4E8', panelSub: '#E4E4E8',
+      inputBg: 'rgba(255,255,255,0.06)', inputBorder: 'rgba(255,255,255,0.16)', inputText: '#F2F1EE',
+    },
+  };
+
+  colors() { return this.themes[this.state.theme]; }
+
+  banner() {
+    const c = this.colors();
+    return [
+      { text: 'terminal mode — full portfolio, one command line', color: c.accent },
+      { text: 'type /help to see everything you can do, or /exit to go back', color: c.dim },
+      { text: '', color: c.dim },
+    ];
+  }
+
+  async componentDidMount() {
+    const mod = await import(new URL('./data.js', document.baseURI).href);
+    this.setState({ data: mod });
+    setTimeout(() => this.setState({ ratingVisible: true }), 3000);
+    this.print(this.banner());
+    setTimeout(() => this._inputEl && this._inputEl.focus(), 50);
+    this._onStorage = (e) => { if (e.key === 'aj-theme' && e.newValue) this.setState({ theme: e.newValue }); };
+    window.addEventListener('storage', this._onStorage);
+  }
+
+  componentWillUnmount() {
+    if (this._onStorage) window.removeEventListener('storage', this._onStorage);
+  }
+
+  toggleTheme() {
+    const next = this.state.theme === 'light' ? 'dark' : 'light';
+    this.setState({ theme: next });
+    if (typeof localStorage !== 'undefined') localStorage.setItem('aj-theme', next);
+  }
+
+  getThemeIcon() {
+    const s = 'stroke="' + (this.state.theme === 'light' ? '#2A2B33' : '#E4E4E8') + '" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" fill="none"';
+    return this.state.theme === 'light'
+      ? `<svg width="16" height="16" viewBox="0 0 24 24" ${s}><circle cx="12" cy="12" r="4.5"></circle><path d="M12 2v2M12 20v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M2 12h2M20 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4"></path></svg>`
+      : `<svg width="16" height="16" viewBox="0 0 24 24" ${s}><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5Z"></path></svg>`;
+  }
+
+  print(lines) {
+    const withMeta = lines.map((l) => l.href ? {
+      ...l, linkHref: l.href, onLinkClick: this.makeLinkHandler(l.href),
+      linkStyle: { color: 'inherit', textDecoration: 'underline', textDecorationColor: 'rgba(91,127,255,0.4)', cursor: 'pointer' },
+    } : {
+      ...l, linkHref: undefined, onLinkClick: (e) => e.preventDefault(),
+      linkStyle: { color: 'inherit', textDecoration: 'none', cursor: 'default', pointerEvents: 'none' },
+    });
+    this.setState((s) => ({ lines: [...s.lines, ...withMeta] }));
+    setTimeout(() => { if (this._bodyEl) this._bodyEl.scrollTop = this._bodyEl.scrollHeight; }, 20);
+  }
+
+  makeLinkHandler(href) {
+    return (e) => {
+      if (e.metaKey || e.ctrlKey) return;
+      e.preventDefault();
+      this.print([{ text: `hold ⌘/Ctrl and click to open ${href}`, color: this.colors().faint }]);
+    };
+  }
+
+  startContactFlow() {
+    const c = this.colors();
+    this.setState({ contactMode: true, contactStep: 'name', contactData: { name: '', email: '', message: '' } });
+    this.print([
+      { text: "Let's get you in touch — I'll ask a few quick questions.", color: c.secondary },
+      { text: '(type /cancel anytime to stop)', color: c.faint },
+      { text: '', color: c.dim },
+      { text: "What's your name?", color: c.heading },
+    ]);
+  }
+
+  handleContactAnswer(raw) {
+    const c = this.colors();
+    const val = raw.trim();
+    this.print([{ text: `andrej@dev > ${val}`, color: c.dim }]);
+
+    if (val.toLowerCase() === '/cancel') {
+      this.setState({ contactMode: false, contactStep: null, contactData: { name: '', email: '', message: '' } });
+      this.print([{ text: 'contact flow cancelled.', color: c.error }]);
+      return;
+    }
+
+    const step = this.state.contactStep;
+
+    if (step === 'name') {
+      if (!val) { this.print([{ text: 'a name is required — try again:', color: c.error }]); return; }
+      this.setState((s) => ({ contactData: { ...s.contactData, name: val }, contactStep: 'email' }));
+      this.print([{ text: 'What email should I reply to?', color: c.heading }]);
+      return;
+    }
+
+    if (step === 'email') {
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)) { this.print([{ text: 'that doesn\'t look like a valid email — try again:', color: c.error }]); return; }
+      this.setState((s) => ({ contactData: { ...s.contactData, email: val }, contactStep: 'message' }));
+      this.print([{ text: 'What would you like to say?', color: c.heading }]);
+      return;
+    }
+
+    if (step === 'message') {
+      if (!val) { this.print([{ text: 'message can\'t be empty — try again:', color: c.error }]); return; }
+      this.setState((s) => ({ contactData: { ...s.contactData, message: val }, contactStep: 'confirm' }));
+      const d = { ...this.state.contactData, message: val };
+      this.print([
+        { text: '', color: c.dim },
+        { text: '─── review your message ───', color: c.faint },
+        { text: `name:    ${d.name}`, color: c.primary },
+        { text: `email:   ${d.email}`, color: c.primary },
+        { text: `message: ${d.message}`, color: c.primary },
+        { text: '', color: c.dim },
+        { text: 'press enter to send, or /cancel to discard', color: c.faint },
+      ]);
+      return;
+    }
+
+    if (step === 'confirm') {
+      if (val === '' || val.toLowerCase() === 'y' || val.toLowerCase() === 'yes') {
+        this.print([{ text: 'sending...', color: c.dim }]);
+        setTimeout(() => {
+          this.print([{ text: `✓ message sent — thanks ${this.state.contactData.name.split(' ')[0]}, I'll get back to you soon.`, color: c.success }]);
+          this.setState({ contactMode: false, contactStep: null, contactData: { name: '', email: '', message: '' } });
+        }, 700);
+      } else {
+        this.print([{ text: 'press enter to send, or /cancel to discard', color: c.faint }]);
+      }
+      return;
+    }
+  }
+
+  getCommands() {
+    const d = this.state.data;
+    const c = this.colors();
+    return [
+      { cmd: 'help', run: () => this.print([
+        { text: 'Available commands:', color: c.secondary },
+        { text: '  /about        — who I am', color: c.dim },
+        { text: '  /projects     — list projects', color: c.dim },
+        { text: '  /project --<slug> — project details, e.g. /project --transitflow', color: c.dim },
+        { text: '  /experience   — work history', color: c.dim },
+        { text: '  /skills       — tech stack', color: c.dim },
+        { text: '  /contact      — send me a message', color: c.dim },
+        { text: '  /theme        — toggle light/dark', color: c.dim },
+        { text: '  /github       — open github', color: c.dim },
+        { text: '  /linkedin     — open linkedin', color: c.dim },
+        { text: '  /resume       — open résumé', color: c.dim },
+        { text: '  /clear        — clear screen', color: c.dim },
+        { text: '  /exit         — back to portfolio', color: c.dim },
+      ]) },
+      { cmd: 'about', run: () => this.print([
+        { text: `${d.personal.name} — ${d.personal.role}, ${d.personal.location}.`, color: c.primary },
+        { text: 'I build complete products end to end — backend systems, APIs, databases and the frontend that ties it together.', color: c.secondary },
+      ]) },
+      { cmd: 'projects', run: () => this.print(
+        d.projects.map((p) => ({ text: `${p.slug} — ${p.name} — ${p.category}${p.featured ? '  [FEATURED]' : ''}`, color: c.primary }))
+        .concat([{ text: 'type /project --<slug> for details, e.g. /project --transitflow', color: c.faint }])
+      ) },
+      { cmd: 'project', run: (arg) => {
+        const slug = (arg || '').replace(/^--/, '').trim();
+        const p = d.projects.find((pr) => pr.slug === slug);
+        if (!p) { this.print([{ text: 'usage: /project --<slug> — see /projects for the list', color: c.error }]); return; }
+        this.print([
+          { text: p.name, color: c.accent },
+          { text: p.description, color: c.secondary },
+          { text: `problem:  ${p.problem}`, color: c.dim },
+          { text: `solution: ${p.solution}`, color: c.dim },
+          { text: `stack:    ${p.tech.join(', ')}`, color: c.dim },
+          { text: `live:     ${p.live}`, color: c.accent, href: p.live },
+          { text: `github:   ${p.github}`, color: c.accent, href: p.github },
+        ]);
+      } },
+      { cmd: 'experience', run: () => this.print(
+        d.experience.flatMap((job) => [
+          { text: `${job.role} @ ${job.company}  (${job.dates})`, color: c.primary },
+          { text: `  ${job.description}`, color: c.dim },
+        ])
+      ) },
+      { cmd: 'skills', run: () => this.print(
+        d.skills.flatMap((g) => [{ text: `${g.category}:`, color: c.accent }, { text: `  ${g.items.join(', ')}`, color: c.secondary }])
+      ) },
+      { cmd: 'contact', run: () => this.startContactFlow() },
+      { cmd: 'theme', run: () => { this.toggleTheme(); this.print([{ text: `theme switched to ${this.state.theme === 'light' ? 'dark' : 'light'}`, color: this.colors().dim }]); } },
+      { cmd: 'github', run: () => this.print([{ text: d.personal.github, color: c.accent, href: d.personal.github }]) },
+      { cmd: 'linkedin', run: () => this.print([{ text: d.personal.linkedin, color: c.accent, href: d.personal.linkedin }]) },
+      { cmd: 'resume', run: () => this.print([{ text: d.personal.resume, color: c.accent, href: d.personal.resume }]) },
+      { cmd: 'clear', run: () => this.setState({ lines: [] }) },
+      { cmd: 'exit', run: () => { window.location.href = 'Portfolio.dc.html'; } },
+      { cmd: 'whoami', run: () => this.print([{ text: `${d.personal.name} — ${d.personal.role}`, color: c.primary }]) },
+    ];
+  }
+
+  runCommand(raw) {
+    const input = raw.trim();
+    if (!input) return;
+    this.print([{ text: `andrej@dev > ${input}`, color: this.colors().dim }]);
+    if (!input.startsWith('/')) { this.print([{ text: 'commands must start with / — try /help', color: this.colors().error }]); return; }
+    const [clean, ...rest] = input.slice(1).toLowerCase().split(' ');
+    const cmd = this.getCommands().find((c) => c.cmd === clean);
+    if (cmd) cmd.run(rest.join(' '));
+    else this.print([{ text: `command not found: /${clean} — type /help`, color: this.colors().error }]);
+  }
+
+  transitionToStage(stage) {
+    this.setState({ ratingTransitioning: true, contentReady: false });
+    setTimeout(() => {
+      this.setState({ ratingStage: stage });
+      setTimeout(() => {
+        this.setState({ ratingTransitioning: false });
+        setTimeout(() => {
+          this.setState({ contentReady: true });
+          if (stage === 'thanks') setTimeout(() => this.setState({ ratingVisible: false }), 2400);
+        }, 350);
+      }, 50);
+    }, 500);
+  }
+
+  selectRating(n) {
+    this.setState({ ratingValue: n });
+    this.transitionToStage(n >= 4 ? 'thanks' : 'feedback');
+  }
+
+  submitFeedback() {
+    this.transitionToStage('thanks');
+  }
+
+  renderVals() {
+    const c = this.colors();
+    const stage = this.state.ratingStage;
+    const imgBaseStyle = {
+      position: 'absolute', top: 0, left: 0, width: '130px', height: 'auto',
+      filter: 'drop-shadow(0 12px 26px rgba(0,0,0,0.5))',
+      transition: 'transform 0.5s ease, opacity 0.5s ease',
+    };
+    const imgFor = (name) => ({
+      ...imgBaseStyle,
+      opacity: (stage === name && !this.state.ratingTransitioning) ? 1 : 0,
+      transform: (stage === name && !this.state.ratingTransitioning) ? 'translateY(0)' : 'translateY(30px)',
+      pointerEvents: 'none',
+    });
+    const imgWrapStyle = { position: 'relative', width: '130px', height: '130px', margin: '10px auto -22px' };
+    return {
+      imgWrapStyle,
+      rootStyle: { minHeight: '100vh', background: c.bg, color: c.primary, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '32px', transition: 'background 0.3s ease' },
+      containerStyle: {
+        width: '100%', maxWidth: '920px', height: '82vh', borderRadius: '16px',
+        background: `linear-gradient(180deg, ${c.cardTop}, ${c.cardBottom})`, border: `1px solid ${c.cardBorder}`,
+        boxShadow: '0 30px 90px rgba(0,0,0,0.6)', display: 'flex', flexDirection: 'column', overflow: 'hidden',
+        transition: 'background 0.3s ease, border-color 0.3s ease',
+      },
+      headerStyle: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px', padding: '14px 18px', borderBottom: `1px solid ${c.headerBorder}`, flexShrink: 0 },
+      headerLabelStyle: { marginLeft: '8px', fontSize: '12px', color: c.headerLabel },
+      themeToggleStyle: { width: '30px', height: '30px', borderRadius: '999px', border: `1px solid ${c.toggleBorder}`, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' },
+      themeIconHtml: { __html: this.getThemeIcon() },
+      imgStyleRate: imgFor('rate'),
+      imgStyleFeedback: imgFor('feedback'),
+      imgStyleThanks: imgFor('thanks'),
+      lines: this.state.lines,
+      promptUser: 'andrej@dev ',
+      promptUserStyle: { color: '#4FA8E0', fontWeight: 700, flexShrink: 0 },
+      promptChar: this.state.contactMode ? '?' : '❯',
+      promptStyle: { color: '#7ED321', fontWeight: 700, flexShrink: 0 },
+      inputStyle: { flex: 1, background: 'transparent', border: 'none', outline: 'none', color: c.inputColor, fontFamily: 'inherit', fontSize: '14px', caretColor: c.dollar },
+      ratingWrapStyle: {
+        position: 'fixed', right: '28px', bottom: '0', zIndex: 300, textAlign: 'center',
+        opacity: this.state.ratingVisible ? 1 : 0, transform: this.state.ratingVisible ? 'translateY(0)' : 'translateY(20px)',
+        pointerEvents: this.state.ratingVisible ? 'auto' : 'none', transition: 'opacity 0.5s ease, transform 0.5s ease',
+      },
+      ratingBubbleStyle: {
+        background: c.panelBg, border: `1px solid ${c.panelBorder}`, borderRadius: '14px', padding: '16px',
+        width: '230px', boxShadow: '0 12px 30px rgba(0,0,0,0.5)',
+        transform: this.state.ratingTransitioning ? 'translateY(30px)' : 'translateY(0)',
+        opacity: this.state.ratingTransitioning ? 0 : 1,
+        transition: 'transform 0.5s ease, opacity 0.5s ease, background 0.3s ease',
+      },
+      ratingHeadingStyle: { fontSize: '14px', color: c.panelText, fontWeight: 600, marginBottom: '10px', textAlign: 'center' },
+      ratingSubheadStyle: { fontSize: '13px', color: c.panelSub, fontWeight: 600, marginBottom: '8px', textAlign: 'center' },
+      feedbackTextareaStyle: { width: '100%', padding: '10px 12px', borderRadius: '8px', background: c.inputBg, border: `1px solid ${c.inputBorder}`, color: c.inputText, fontSize: '13px', fontFamily: 'inherit', outline: 'none', resize: 'none', marginBottom: '10px', boxSizing: 'border-box' },
+      stageRateDisplay: { display: stage === 'rate' ? 'block' : 'none' },
+      stageFeedbackDisplay: {
+        display: stage === 'feedback' ? 'block' : 'none',
+        opacity: this.state.contentReady ? 1 : 0, transition: 'opacity 0.3s ease',
+      },
+      stageThanksDisplay: {
+        display: stage === 'thanks' ? 'block' : 'none',
+        opacity: this.state.contentReady ? 1 : 0, transition: 'opacity 0.3s ease',
+      },
+      stars: [1, 2, 3, 4, 5].map((n) => ({
+        onClick: () => this.selectRating(n),
+        onHover: () => this.setState({ ratingHover: n }),
+        onLeaveHover: () => this.setState({ ratingHover: 0 }),
+        style: {
+          fontSize: '26px', cursor: 'pointer',
+          color: n <= (this.state.ratingHover || this.state.ratingValue) ? '#FFC24B' : '#3A3B44',
+          transition: 'color 0.15s',
+        },
+      })),
+      feedbackText: this.state.feedbackText,
+      handleFeedbackChange: (e) => this.setState({ feedbackText: e.target.value }),
+      submitFeedback: () => this.submitFeedback(),
+      toggleTheme: () => this.toggleTheme(),
+      input: this.state.input,
+      bodyRef: (el) => { this._bodyEl = el; },
+      inputRef: (el) => { this._inputEl = el; },
+      focusInput: () => this._inputEl && this._inputEl.focus(),
+      handleChange: (e) => this.setState({ input: e.target.value }),
+      handleKey: (e) => {
+        if (e.key === 'Enter' && this.state.data) {
+          const val = this.state.input;
+          this.setState({ input: '' });
+          if (this.state.contactMode) this.handleContactAnswer(val);
+          else this.runCommand(val);
+        }
+      },
+    };
+  }
+}
+
+</script>
+</body>
+</html>

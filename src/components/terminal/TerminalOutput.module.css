@@ -1,0 +1,14 @@
+.line {
+  white-space: pre-wrap;
+  min-height: 1.85em;
+}
+
+.link {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-color: var(--accent-line);
+}
+
+.link:hover {
+  color: var(--accent);
+}

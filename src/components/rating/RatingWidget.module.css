@@ -1,0 +1,142 @@
+.wrap {
+  position: fixed;
+  right: 28px;
+  bottom: 0;
+  z-index: 300;
+  text-align: center;
+  opacity: 0;
+  transform: translateY(20px);
+  pointer-events: none;
+  transition:
+    opacity 0.5s ease,
+    transform 0.5s ease;
+}
+
+.visible {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.bubble {
+  background: var(--panel-bg);
+  border: 1px solid var(--accent-line);
+  border-radius: 14px;
+  padding: 16px;
+  width: 230px;
+  box-shadow: var(--shadow-panel);
+  transition:
+    transform 0.45s ease,
+    opacity 0.45s ease,
+    background 0.3s ease;
+}
+
+.transitioning {
+  transform: translateY(30px);
+  opacity: 0;
+}
+
+.heading {
+  font-size: 14px;
+  color: var(--text2);
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+.subhead {
+  font-size: 13px;
+  color: var(--text2);
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.stars {
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+}
+
+.star {
+  font-size: 26px;
+  line-height: 1;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  color: var(--star-empty);
+  transition: color 0.15s;
+}
+
+.starActive {
+  color: #ffc24b;
+}
+
+.textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: var(--term-input-bg);
+  border: 1px solid var(--term-input-border);
+  color: var(--text);
+  font-size: 13px;
+  font-family: inherit;
+  outline: none;
+  resize: none;
+  margin-bottom: 10px;
+}
+
+.send {
+  width: 100%;
+  text-align: center;
+  padding: 9px;
+  border-radius: 8px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: inherit;
+  border: none;
+  cursor: pointer;
+}
+
+.send:disabled {
+  opacity: 0.7;
+  cursor: default;
+}
+
+.imageWrap {
+  position: relative;
+  width: 130px;
+  height: 130px;
+  margin: 10px auto -22px;
+}
+
+.image {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 130px;
+  height: auto;
+  filter: drop-shadow(0 12px 26px rgba(0, 0, 0, 0.35));
+  opacity: 0;
+  transform: translateY(30px);
+  pointer-events: none;
+  transition:
+    transform 0.5s ease,
+    opacity 0.5s ease;
+}
+
+.imageActive {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@media (max-width: 600px) {
+  .wrap {
+    right: 12px;
+  }
+
+  .imageWrap {
+    display: none;
+  }
+}

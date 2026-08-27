@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: 'JetBrains Mono', monospace; background: #F7F7F5; }
+    a { color: #5B7FFF; text-decoration: none; }
+    a:hover { color: #8B9CFF; }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; } }
+  </style>
+</helmet>
+
+<sc-if value="{{ ready }}" hint-placeholder-val="{{ false }}">
+<div style="background: #F7F7F5; color: #16171C; min-height: 100vh; animation: fadeUp 0.5s ease;">
+  <nav style="position: sticky; top: 0; z-index: 50; background: rgba(10,10,13,0.85); backdrop-filter: blur(16px); border-bottom: 1px solid rgba(10,10,20,0.07);">
+    <div style="max-width: 900px; margin: 0 auto; padding: 0 28px; height: 64px; display: flex; align-items: center; justify-content: space-between;">
+      <a href="Portfolio.dc.html" style="font-family: 'JetBrains Mono', monospace; font-size: 15px; font-weight: 600; color: #16171C;">← Back to portfolio</a>
+      <div style="display: flex; gap: 14px;">
+        <a href="{{ project.github }}" target="_blank" rel="noreferrer" style="font-size: 13px; color: #6B6C76;">GitHub</a>
+        <a href="{{ project.live }}" target="_blank" rel="noreferrer" style="font-size: 13px; color: #6B6C76;">Live Site</a>
+      </div>
+    </div>
+  </nav>
+
+  <header style="padding: 90px 28px 60px;">
+    <div style="max-width: 780px; margin: 0 auto;">
+      <div style="font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #5B7FFF; margin-bottom: 16px;">{{ project.category }}</div>
+      <h1 style="font-size: clamp(34px, 5vw, 54px); font-weight: 700; color: #16171C; margin: 0 0 20px; letter-spacing: -0.02em;">{{ project.name }}</h1>
+      <p style="font-size: 18px; line-height: 1.7; color: #6B6C76; margin: 0 0 26px; max-width: 620px;">{{ project.description }}</p>
+      <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+        <sc-for list="{{ project.tech }}" as="t" hint-placeholder-count="4">
+          <span style="padding: 6px 14px; border-radius: 999px; background: rgba(10,10,20,0.045); border: 1px solid rgba(10,10,20,0.08); font-size: 12px; color: #5A5B65; font-family: 'JetBrains Mono', monospace;">{{ t }}</span>
+        </sc-for>
+      </div>
+    </div>
+  </header>
+
+  <div style="max-width: 780px; margin: 0 auto; padding: 0 28px 30px;">
+    <div style="aspect-ratio: 16/9; border-radius: 16px; background: repeating-linear-gradient(135deg, #ECECEA, #ECECEA 14px, #E3E3E0 14px, #E3E3E0 28px); border: 1px solid rgba(10,10,20,0.08); display: flex; align-items: center; justify-content: center; font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #9A9BA4;">product screenshot — {{ project.name }}</div>
+  </div>
+
+  <div style="max-width: 780px; margin: 0 auto; padding: 40px 28px 120px; display: flex; flex-direction: column; gap: 48px;">
+    <sc-for list="{{ caseSections }}" as="sec" hint-placeholder-count="6">
+      <div>
+        <div style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #5B7FFF; margin-bottom: 10px; letter-spacing: 0.06em;">{{ sec.label }}</div>
+        <p style="font-size: 16px; line-height: 1.75; color: #9A9BA4; margin: 0;">{{ sec.text }}</p>
+      </div>
+    </sc-for>
+    <sc-if value="{{ engineeringList.length }}" hint-placeholder-val="{{ false }}">
+      <div>
+        <div style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #5B7FFF; margin-bottom: 12px; letter-spacing: 0.06em;">ENGINEERING DECISIONS</div>
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+          <sc-for list="{{ engineeringList }}" as="item" hint-placeholder-count="3">
+            <div style="display: flex; gap: 10px; font-size: 15px; color: #9A9BA4; line-height: 1.6;">
+              <span style="color: #5B7FFF; flex-shrink: 0;">▸</span>{{ item }}
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </sc-if>
+
+    <div style="padding-top: 20px; border-top: 1px solid rgba(10,10,20,0.08); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+      <a href="Portfolio.dc.html#projects" style="font-size: 14px; font-weight: 600; color: #5B7FFF;">← All projects</a>
+      <div style="display: flex; gap: 16px;">
+        <a href="{{ project.live }}" target="_blank" rel="noreferrer" style="padding: 12px 22px; border-radius: 10px; background: #5B7FFF; color: #fff; font-size: 14px; font-weight: 600;">View Live Site</a>
+        <a href="{{ project.github }}" target="_blank" rel="noreferrer" style="padding: 12px 22px; border-radius: 10px; border: 1px solid rgba(10,10,20,0.13); color: #2A2B33; font-size: 14px; font-weight: 600;">View Code</a>
+      </div>
+    </div>
+  </div>
+
+  <footer style="padding: 32px 28px; border-top: 1px solid rgba(10,10,20,0.07); text-align: center; font-size: 13px; color: #8A8B94;">Designed &amp; built by Andrej</footer>
+</div>
+</sc-if>
+
+<sc-if value="{{ notFound }}" hint-placeholder-val="{{ false }}">
+  <div style="min-height: 100vh; background: #F7F7F5; color: #16171C; display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 16px; font-family: 'Inter', sans-serif;">
+    <div style="font-family: 'JetBrains Mono', monospace; color: #5B7FFF;">404</div>
+    <div style="font-size: 20px;">Project not found.</div>
+    <a href="Portfolio.dc.html" style="color: #5B7FFF; font-size: 14px;">← Back to portfolio</a>
+  </div>
+</sc-if>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { project: null, notReady: true };
+
+  async componentDidMount() {
+    const mod = await import(new URL('./data.js', document.baseURI).href);
+    const params = new URLSearchParams(window.location.search);
+    const slug = params.get('slug');
+    const project = mod.projects.find((p) => p.slug === slug) || mod.projects[0];
+    this.setState({ project, notReady: false });
+  }
+
+  renderVals() {
+    const project = this.state.project;
+    if (this.state.notReady || !project) {
+      return { ready: false, notFound: !this.state.notReady && !project };
+    }
+    const caseSections = [
+      { label: 'OVERVIEW', text: project.overview },
+      { label: 'THE PROBLEM', text: project.problem },
+      { label: 'THE SOLUTION', text: project.solution },
+      { label: 'MY ROLE', text: project.role },
+      { label: 'ARCHITECTURE', text: project.architecture },
+      { label: 'CHALLENGES', text: project.challenges },
+      { label: 'RESULT', text: project.result },
+      { label: 'WHAT I LEARNED', text: project.learned },
+    ].filter((s) => s.text);
+    const engineeringList = project.engineering || [];
+    return { ready: true, notFound: false, project, caseSections, engineeringList };
+  }
+}
+
+</script>
+</body>
+</html>
