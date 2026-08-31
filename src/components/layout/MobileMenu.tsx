@@ -55,7 +55,9 @@ export function MobileMenu({ open, sections, activeSection, personal, onClose }:
         <a href={personal.linkedin} target="_blank" rel="noreferrer">
           LinkedIn
         </a>
-        <a href={personal.resume}>Resume</a>
+        <a href={personal.resume} target="_blank" rel="noreferrer">
+          Resume
+        </a>
         <button type="button" onClick={toggleTheme} className={styles.themeButton}>
           {theme === "light" ? "Dark mode" : "Light mode"}
         </button>

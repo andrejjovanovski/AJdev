@@ -46,7 +46,12 @@ export function Nav({
 
         <div className={styles.actions}>
           <ThemeToggle />
-          <a href={personal.resume} className={styles.resume}>
+          <a
+            href={personal.resume}
+            className={styles.resume}
+            target="_blank"
+            rel="noreferrer"
+          >
             Resume
           </a>
         </div>

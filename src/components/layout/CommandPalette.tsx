@@ -40,7 +40,7 @@ export function CommandPalette({
       { label: "Terminal Mode", hint: "open", action: () => router.push("/terminal") },
       { label: "GitHub", hint: "open", action: open(personal.github) },
       { label: "LinkedIn", hint: "open", action: open(personal.linkedin) },
-      { label: "Download Résumé", hint: "open", action: open(personal.resume) },
+      { label: "Download Resume", hint: "open", action: open(personal.resume) },
     ];
   }, [personal, router]);
 

@@ -31,6 +31,23 @@
   background: var(--accent);
   box-shadow: 0 0 14px var(--accent);
   animation: flowRight 3.6s linear infinite;
+}
+
+@keyframes flowRight {
+  0% {
+    left: -6%;
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    left: 100%;
+    opacity: 0;
+  }
   z-index: 1;
 }
 

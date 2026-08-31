@@ -28,6 +28,8 @@
 }
 
 .featuredThumb {
+  position: relative;
+  overflow: hidden;
   aspect-ratio: 16 / 10;
   border-radius: 14px;
   background: repeating-linear-gradient(
@@ -49,6 +51,10 @@
 
 .featured:hover .featuredThumb {
   transform: scale(1.02);
+}
+
+.thumbImage {
+  object-fit: cover;
 }
 
 .tags {
@@ -160,6 +166,8 @@
 }
 
 .cardThumb {
+  position: relative;
+  overflow: hidden;
   aspect-ratio: 16 / 10;
   border-radius: 10px;
   background: repeating-linear-gradient(

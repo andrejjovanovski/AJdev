@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { Tag, TagList } from "@/components/ui/Tag";
 import type { Project } from "@/lib/types";
@@ -78,6 +79,15 @@ function GalleryCard({ project, onOpen }: { project: Project; onOpen: () => void
         aria-label={`Open details for ${project.name}`}
       >
         <div className={styles.thumb}>
+          {project.image && (
+            <Image
+              src={project.image}
+              alt={`${project.name} product screenshot`}
+              fill
+              sizes="(max-width: 720px) 100vw, 360px"
+              className={styles.thumbImage}
+            />
+          )}
           {project.featured && <span className={styles.featuredBadge}>FEATURED</span>}
         </div>
 

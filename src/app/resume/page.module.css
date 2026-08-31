@@ -1,0 +1,248 @@
+.page {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  animation: fadeUp 0.5s ease;
+  overflow: hidden;
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.grid {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(var(--border-a) 1px, transparent 1px),
+    linear-gradient(90deg, var(--border-a) 1px, transparent 1px);
+  background-size: 46px 46px;
+  mask-image: radial-gradient(ellipse 70% 55% at 50% 0%, #000 0%, transparent 75%);
+}
+
+.nav {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: var(--nav-scrolled);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border-a);
+}
+
+.navInner {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 28px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.back {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.back:hover {
+  color: var(--accent);
+}
+
+.navLinks {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+}
+
+.navLinks a {
+  font-size: 13px;
+  color: var(--text3);
+}
+
+.navLinks a:hover {
+  color: var(--accent);
+}
+
+.header {
+  position: relative;
+  z-index: 1;
+  max-width: 1100px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 72px 28px 36px;
+}
+
+.eyebrow {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  color: var(--accent);
+  margin-bottom: 16px;
+}
+
+.title {
+  font-size: clamp(34px, 5vw, 52px);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--text);
+  margin: 0 0 18px;
+}
+
+.lede {
+  font-size: 17px;
+  line-height: 1.7;
+  color: var(--text3);
+  margin: 0;
+  max-width: 560px;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 30px;
+}
+
+.primary,
+.secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  padding: 11px 18px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  transition:
+    transform 0.15s ease,
+    background 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease;
+}
+
+.primary {
+  background: var(--accent);
+  color: #fff;
+  border: 1px solid var(--accent);
+}
+
+.primary:hover {
+  color: #fff;
+  transform: translateY(-1px);
+  background: var(--accent-tint);
+  border-color: var(--accent-tint);
+}
+
+.secondary {
+  background: var(--surface-a);
+  color: var(--text2);
+  border: 1px solid var(--border-c);
+}
+
+.secondary:hover {
+  color: var(--text);
+  transform: translateY(-1px);
+  border-color: var(--border-d);
+  background: var(--hover-bg);
+}
+
+.dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--success);
+  box-shadow: 0 0 0 3px rgba(94, 230, 160, 0.25);
+}
+
+.content {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  max-width: 1100px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 0 28px 72px;
+}
+
+.viewer {
+  border: 1px solid var(--term-card-border);
+  border-radius: 14px;
+  overflow: hidden;
+  background: var(--term-card-bottom);
+  box-shadow: var(--shadow-terminal);
+}
+
+.viewerBar {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 16px;
+  background: var(--term-card-top);
+  border-bottom: 1px solid var(--term-header-border);
+}
+
+.lights {
+  display: flex;
+  gap: 7px;
+}
+
+.lights span {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: var(--border-d);
+}
+
+.lights span:first-child {
+  background: var(--error);
+}
+
+.lights span:nth-child(2) {
+  background: #f5bd4f;
+}
+
+.lights span:nth-child(3) {
+  background: var(--success);
+}
+
+.filename {
+  font-size: 12px;
+  color: var(--term-header-label);
+  letter-spacing: 0.02em;
+}
+
+.footer {
+  position: relative;
+  z-index: 1;
+  padding: 30px 28px;
+  text-align: center;
+  font-size: 13px;
+  color: var(--text5);
+  border-top: 1px solid var(--border-a);
+}
+
+@media (max-width: 700px) {
+  .header {
+    padding: 48px 20px 28px;
+  }
+
+  .content {
+    padding: 0 20px 52px;
+  }
+
+  .navInner {
+    padding: 0 20px;
+  }
+
+}

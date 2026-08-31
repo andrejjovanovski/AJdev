@@ -115,7 +115,7 @@ export function HeroTerminal({ personal }: { personal: Personal }) {
         },
         {
           cmd: "resume",
-          desc: "open résumé",
+          desc: "open resume",
           run: openUrl(personal.resume, "resume"),
         },
         {

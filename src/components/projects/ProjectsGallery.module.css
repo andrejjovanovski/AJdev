@@ -82,10 +82,15 @@
   border: 1px solid var(--border-b);
   margin-bottom: 16px;
   transition: transform 0.4s;
+  overflow: hidden;
 }
 
 .card:hover .thumb {
   transform: scale(1.02);
+}
+
+.thumbImage {
+  object-fit: cover;
 }
 
 .featuredBadge {

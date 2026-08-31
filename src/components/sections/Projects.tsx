@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { Reveal } from "@/components/ui/Reveal";
 import { SectionHeading } from "@/components/ui/SectionHeading";
@@ -41,7 +42,19 @@ function FeaturedCard({ project }: { project: Project }) {
     <div className={styles.featuredWrap}>
       <div className={styles.featured}>
         <div>
-          <div className={styles.featuredThumb}>product screenshot — {project.name}</div>
+          <div className={styles.featuredThumb}>
+            {project.image ? (
+              <Image
+                src={project.image}
+                alt={`${project.name} product screenshot`}
+                fill
+                sizes="(max-width: 900px) 100vw, 480px"
+                className={styles.thumbImage}
+              />
+            ) : (
+              <>product screenshot — {project.name}</>
+            )}
+          </div>
           <div className={styles.tags}>
             {project.tags.map((tag) => (
               <Tag key={tag} variant="accent" size="sm">
@@ -86,7 +99,17 @@ function FeaturedCard({ project }: { project: Project }) {
 function ProjectCard({ project }: { project: Project }) {
   return (
     <div className={styles.card}>
-      <div className={styles.cardThumb} />
+      <div className={styles.cardThumb}>
+        {project.image && (
+          <Image
+            src={project.image}
+            alt={`${project.name} product screenshot`}
+            fill
+            sizes="(max-width: 720px) 100vw, 360px"
+            className={styles.thumbImage}
+          />
+        )}
+      </div>
       <div className={styles.category}>{project.category}</div>
       <h3 className={styles.cardTitle}>{project.name}</h3>
       <div className={styles.cardFact}>

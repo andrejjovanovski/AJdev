@@ -16,7 +16,7 @@ const COMMANDS = [
   { name: "/theme", desc: "toggle light/dark" },
   { name: "/github", desc: "open github" },
   { name: "/linkedin", desc: "open linkedin" },
-  { name: "/resume", desc: "open résumé" },
+  { name: "/resume", desc: "open resume" },
   { name: "/whoami", desc: "current visitor" },
   { name: "/clear", desc: "clear screen" },
   { name: "/exit", desc: "back to portfolio" },

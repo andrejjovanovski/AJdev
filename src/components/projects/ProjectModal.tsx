@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { Tag } from "@/components/ui/Tag";
 import type { Project } from "@/lib/types";
@@ -66,7 +67,19 @@ export function ProjectModal({
         </header>
 
         <div className={styles.body}>
-          <div className={styles.thumb}>product screenshot — {project.name}</div>
+          <div className={styles.thumb}>
+            {project.image ? (
+              <Image
+                src={project.image}
+                alt={`${project.name} product screenshot`}
+                fill
+                sizes="(max-width: 900px) 100vw, 720px"
+                className={styles.thumbImage}
+              />
+            ) : (
+              <>product screenshot — {project.name}</>
+            )}
+          </div>
 
           <p className={styles.description}>{project.description}</p>
 

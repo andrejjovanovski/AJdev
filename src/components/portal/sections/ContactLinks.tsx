@@ -32,7 +32,7 @@ export function ContactLinks({
         onChange={setPersonal("linkedin")}
       />
       <TextField
-        label="Résumé URL"
+        label="Resume URL"
         value={draft.personal.resume}
         onChange={setPersonal("resume")}
       />

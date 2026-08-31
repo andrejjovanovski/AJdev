@@ -3,6 +3,17 @@
   animation: fadeUp 0.5s ease;
 }
 
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .nav {
   position: sticky;
   top: 0;
@@ -87,6 +98,7 @@
 }
 
 .thumb {
+  position: relative;
   aspect-ratio: 16 / 9;
   border-radius: 16px;
   background: repeating-linear-gradient(
@@ -102,6 +114,11 @@
   justify-content: center;
   font-size: 13px;
   color: var(--text5);
+  overflow: hidden;
+}
+
+.thumbImage {
+  object-fit: cover;
 }
 
 .body {

@@ -1,0 +1,55 @@
+.wrap {
+  position: relative;
+  min-height: 240px;
+}
+
+.status {
+  padding: 60px 24px;
+  text-align: center;
+  font-size: 13px;
+  color: var(--text3);
+}
+
+.doc {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 18px;
+  max-height: min(1150px, 82vh);
+  overflow-y: auto;
+  background: var(--panel-bg);
+  opacity: 0;
+  transition: opacity 0.35s ease;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-d) transparent;
+}
+
+.doc[data-visible="true"] {
+  opacity: 1;
+}
+
+.doc::-webkit-scrollbar {
+  width: 10px;
+}
+
+.doc::-webkit-scrollbar-thumb {
+  background: var(--border-d);
+  border-radius: 999px;
+  border: 3px solid transparent;
+  background-clip: content-box;
+}
+
+.page {
+  display: block;
+  width: 100%;
+  border-radius: 4px;
+  box-shadow: var(--shadow-panel);
+}
+
+@media (max-width: 700px) {
+  .doc {
+    padding: 12px;
+    gap: 10px;
+    max-height: 78vh;
+  }
+}

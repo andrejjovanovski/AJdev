@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
@@ -71,7 +72,20 @@ export default async function ProjectPage({ params }: Params) {
       </header>
 
       <div className={styles.thumbWrap}>
-        <div className={styles.thumb}>product screenshot — {project.name}</div>
+        <div className={styles.thumb}>
+          {project.image ? (
+            <Image
+              src={project.image}
+              alt={`${project.name} product screenshot`}
+              fill
+              sizes="(max-width: 820px) 100vw, 780px"
+              priority
+              className={styles.thumbImage}
+            />
+          ) : (
+            <>product screenshot — {project.name}</>
+          )}
+        </div>
       </div>
 
       <article className={styles.body}>
