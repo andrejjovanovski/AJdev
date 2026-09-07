@@ -126,6 +126,11 @@
   line-height: 1.6;
   color: var(--text3);
   margin: 0 0 14px;
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
 }
 
 .tech {

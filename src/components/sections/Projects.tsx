@@ -8,7 +8,7 @@ import styles from "./Projects.module.css";
 
 export function Projects({ projects }: { projects: Project[] }) {
   const featured = projects.filter((p) => p.featured);
-  const rest = projects.filter((p) => !p.featured);
+  const rest = projects.filter((p) => !p.featured).slice(0, 3);
 
   return (
     <section id="projects" className={styles.section}>

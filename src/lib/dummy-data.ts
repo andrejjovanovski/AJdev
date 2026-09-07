@@ -115,6 +115,74 @@ export const experience: Job[] = [
 
 export const projects: Project[] = [
   {
+    slug: "portfolio-management-dashboard",
+    name: "Portfolio Management Dashboard",
+    featured: false,
+    category: "Custom Admin Dashboard",
+    description:
+      "A custom .NET dashboard for managing the portfolio's content, projects, case studies, experience, skills and site settings from one secure workspace.",
+    tags: ["In development", "Custom CMS", "Admin dashboard"],
+    tech: ["C#", ".NET", "ASP.NET Core", "REST APIs"],
+    live: "#",
+    github: "#",
+    image: "/assets/portfolio-admin-dashboard.jpg",
+    overview:
+      "A purpose-built content management dashboard that turns the portfolio into an editable product instead of a collection of hardcoded pages.",
+    problem:
+      "Updating portfolio content directly in the codebase makes routine changes slower, increases deployment overhead and couples content management to development work.",
+    solution:
+      "Building a secure .NET administration system with focused editors for profile content, contact links, skills, experience, projects, case studies, terminal responses and visual settings.",
+    role: "Designing and developing the complete dashboard, its .NET application architecture and the portfolio content workflows.",
+    engineering: [
+      "Authenticated administration area with centralized content controls",
+      "Structured project editor covering metadata and complete case-study content",
+      "Reusable management flows for skills, experience and contact information",
+      "Site-level controls for terminal content, themes and accent settings",
+    ],
+    result:
+      "In development — designed to make portfolio updates faster, safer and independent from frontend code changes.",
+    architecture:
+      "An ASP.NET Core application organized around typed portfolio content models and REST APIs, with a custom responsive administration interface.",
+    challenges:
+      "Designing a flexible content model that supports very different portfolio sections while keeping the editing experience focused and easy to maintain.",
+    learned:
+      "Strengthening experience in custom CMS architecture, authenticated .NET applications and content-focused administration UX.",
+  },
+  {
+    slug: "aopz",
+    name: "AOPZ",
+    featured: false,
+    category: "Government Website",
+    description:
+      "A complete redesign and WordPress rebuild for the Agency for Community Rights Realization, making institutional news, publications and public information easier to discover and manage.",
+    tags: ["Client project", "Full redesign", "Custom WordPress"],
+    tech: ["WordPress", "PHP", "JavaScript", "CSS"],
+    live: "https://aopz.gov.mk",
+    github: "#",
+    image: "/assets/aopz.jpg",
+    overview:
+      "AOPZ is the official digital platform of the Agency for Community Rights Realization in North Macedonia, bringing institutional activities, publications, events and community-rights information into one accessible destination.",
+    problem:
+      "The existing website and its underlying content structure needed a complete rethink so a public institution could communicate clearly, keep a broad range of information organized and publish new material efficiently.",
+    solution:
+      "Redesigned the public-facing experience from the ground up and rebuilt the WordPress structure behind it, creating clear paths to current activities, publications, cultural initiatives, events and essential agency information.",
+    role: "Led the complete frontend redesign and rebuilt the website's WordPress content structure.",
+    engineering: [
+      "Custom responsive frontend for an information-rich government website",
+      "Reworked WordPress content architecture for maintainable editorial publishing",
+      "Structured sections for news, activities, publications and cultural initiatives",
+      "Interactive events calendar plus clear contact, location and social information",
+    ],
+    result:
+      "Delivered a modern, credible institutional presence with clearer public access to agency updates and a more sustainable publishing workflow for its team.",
+    architecture:
+      "A custom WordPress implementation with a PHP-driven content layer and a responsive JavaScript/CSS frontend organized around reusable editorial sections.",
+    challenges:
+      "Balancing the visual character of a complete redesign with the accessibility, clarity and maintainability required by a content-heavy public-sector website.",
+    learned:
+      "Deepened experience in translating institutional communication requirements into both a polished frontend and a practical WordPress publishing model.",
+  },
+  {
     slug: "kumanovo-transit",
     name: "Kumanovo Transit",
     featured: true,
