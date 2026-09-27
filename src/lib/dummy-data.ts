@@ -124,7 +124,7 @@ export const projects: Project[] = [
     tags: ["In development", "Custom CMS", "Admin dashboard"],
     tech: ["C#", ".NET", "ASP.NET Core", "REST APIs"],
     live: "#",
-    github: "#",
+    github: "https://github.com/andrejjovanovski/AJdevBackend",
     image: "/assets/portfolio-admin-dashboard.jpg",
     overview:
       "A purpose-built content management dashboard that turns the portfolio into an editable product instead of a collection of hardcoded pages.",
@@ -192,7 +192,7 @@ export const projects: Project[] = [
     tags: ["Built for real users", "Mobile-first", "Real-world transportation data"],
     tech: ["React", "TypeScript", "Tailwind CSS", "Maps APIs"],
     live: "https://kumanovotranzit.com",
-    github: "#",
+    github: "https://github.com/andrejjovanovski/kumanovo-tranzit",
     image: "/assets/kumanovo-transit.png",
     overview:
       "Kumanovo Transit gives passengers a single place to look up bus lines, stops, routes and timetables for the city's public transport network.",
@@ -224,7 +224,7 @@ export const projects: Project[] = [
     tags: ["SaaS", "Multi-tenant", "QR menus"],
     tech: ["Node.js", "Next.js", "React", "PostgreSQL"],
     live: "https://menucup.com",
-    github: "#",
+    github: "https://github.com/andrejjovanovski/menu-builder",
     image: "/assets/menucup.png",
     overview:
       "MenuCup enables restaurants, cafes and bars to publish customizable digital menus that customers open by scanning a QR code.",
@@ -319,7 +319,7 @@ export const projects: Project[] = [
     tags: ["SaaS", "Ticketing", "Workflow automation"],
     tech: ["React", "TypeScript", "C#", ".NET Core", "SQL"],
     live: "#",
-    github: "#",
+    github: "https://github.com/andrejjovanovski/supporthub",
     overview:
       "SupportHub gives support teams a single workspace to track tickets end to end, from intake through resolution, with status, priority and assignment built around real support workflows.",
     problem:
