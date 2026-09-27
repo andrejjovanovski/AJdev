@@ -309,6 +309,39 @@ export const projects: Project[] = [
     learned:
       "Gained experience architecting a system from scratch around real organizational workflows.",
   },
+  {
+    slug: "supporthub",
+    name: "SupportHub",
+    featured: false,
+    category: "SaaS Platform",
+    description:
+      "A ticketing and workflow platform that helps support teams triage, assign and resolve customer tickets from one shared queue.",
+    tags: ["SaaS", "Ticketing", "Workflow automation"],
+    tech: ["React", "TypeScript", "C#", ".NET Core", "SQL"],
+    live: "#",
+    github: "#",
+    overview:
+      "SupportHub gives support teams a single workspace to track tickets end to end, from intake through resolution, with status, priority and assignment built around real support workflows.",
+    problem:
+      "Support teams often juggle tickets across email, spreadsheets and chat, making it hard to track ownership, priority and response times as volume grows.",
+    solution:
+      "Built a ticketing platform with a React frontend and a .NET Core backend, covering ticket queues, assignment, status tracking and configurable workflows so teams can standardize how tickets move from open to resolved.",
+    role: "Designed and developed the platform — API, data model and frontend.",
+    engineering: [
+      "Ticket queue with status, priority and assignment tracking",
+      "Configurable workflow states for how tickets move to resolution",
+      "REST API built on .NET Core backing a React frontend",
+      "Role-based views for agents and support managers",
+    ],
+    result:
+      "Gives support teams a single, structured place to manage ticket workflows instead of scattered emails and spreadsheets.",
+    architecture:
+      "React/TypeScript frontend, .NET Core backend exposing a REST API, SQL database for tickets, users and workflow state.",
+    challenges:
+      "Modeling ticket workflows flexibly enough to fit different support processes without making the system harder to configure.",
+    learned:
+      "Practiced designing workflow-driven data models and building a React/.NET Core stack around real team processes.",
+  },
 ];
 
 export const github: GithubStats = {

@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { isPortalConfigured, verifyCredentials } from "@/lib/server/portal-auth";
+import { isPortalConfigured, loginToBackend } from "@/lib/server/portal-auth";
 import { createSessionToken, SESSION_COOKIE, sessionCookieOptions } from "@/lib/server/session";
 
 /**
@@ -39,9 +39,7 @@ function recordFailure(key: string) {
 
 export async function POST(request: Request) {
   if (!isPortalConfigured()) {
-    console.error(
-      "[portal] PORTAL_EMAIL, PORTAL_PASSWORD_HASH and PORTAL_SESSION_SECRET must be set",
-    );
+    console.error("[portal] NEXT_PUBLIC_API_URL and PORTAL_SESSION_SECRET must be set");
     return NextResponse.json({ error: "The portal is not configured." }, { status: 503 });
   }
 
@@ -67,13 +65,14 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Enter an email and password." }, { status: 422 });
   }
 
-  if (!verifyCredentials(email, password)) {
+  const bundle = await loginToBackend(email, password);
+  if (!bundle) {
     recordFailure(key);
     // Deliberately vague — never reveal which half was wrong.
     return NextResponse.json({ error: "Incorrect email or password." }, { status: 401 });
   }
 
-  const token = await createSessionToken(email.trim().toLowerCase());
+  const token = await createSessionToken(bundle);
   if (!token) {
     return NextResponse.json({ error: "The portal is not configured." }, { status: 503 });
   }

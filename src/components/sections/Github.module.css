@@ -47,14 +47,11 @@
   border-radius: 12px;
   background: var(--surface-a);
   border: 1px solid var(--border-a);
-  transition:
-    border-color 0.2s,
-    transform 0.2s;
+  transition: border-color 0.2s;
 }
 
 .repo:hover {
   border-color: rgba(91, 127, 255, 0.4);
-  transform: translateY(-2px);
 }
 
 .repoName {

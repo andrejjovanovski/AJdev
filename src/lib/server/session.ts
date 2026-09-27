@@ -8,12 +8,31 @@
 
 export const SESSION_COOKIE = "aj_portal_session";
 
-/** Seven days. */
-export const SESSION_MAX_AGE = 60 * 60 * 24 * 7;
+/** Fallback lifetime if the backend token carries no usable `exp`. */
+export const SESSION_MAX_AGE = 60 * 60 * 24;
 
-export type Session = { email: string; exp: number };
+/** What the portal login route hands us after authenticating against the backend. */
+export type SessionInput = {
+  email: string;
+  accessToken: string;
+  refreshToken: string;
+  userId: string;
+};
+
+export type Session = SessionInput & { exp: number };
 
 const encoder = new TextEncoder();
+
+/** Best-effort read of a JWT's payload — no signature check (the backend owns that). */
+export function decodeJwtPayload(token: string): Record<string, unknown> | null {
+  try {
+    const payload = token.split(".")[1];
+    if (!payload) return null;
+    return JSON.parse(new TextDecoder().decode(fromBase64Url(payload))) as Record<string, unknown>;
+  } catch {
+    return null;
+  }
+}
 
 function secret(): string | null {
   const value = process.env.PORTAL_SESSION_SECRET ?? "";
@@ -46,11 +65,18 @@ async function key(rawSecret: string): Promise<CryptoKey> {
   );
 }
 
-export async function createSessionToken(email: string): Promise<string | null> {
+/** Seconds since epoch when the cookie should expire — mirrors the backend token. */
+function sessionExpiry(accessToken: string): number {
+  const now = Math.floor(Date.now() / 1000);
+  const claimed = decodeJwtPayload(accessToken)?.exp;
+  return typeof claimed === "number" && claimed > now ? claimed : now + SESSION_MAX_AGE;
+}
+
+export async function createSessionToken(input: SessionInput): Promise<string | null> {
   const rawSecret = secret();
   if (!rawSecret) return null;
 
-  const session: Session = { email, exp: Math.floor(Date.now() / 1000) + SESSION_MAX_AGE };
+  const session: Session = { ...input, exp: sessionExpiry(input.accessToken) };
   const payload = toBase64Url(encoder.encode(JSON.stringify(session)));
   const signature = await crypto.subtle.sign("HMAC", await key(rawSecret), encoder.encode(payload));
 
@@ -80,6 +106,7 @@ export async function verifySessionToken(token: string | undefined): Promise<Ses
   try {
     const session = JSON.parse(new TextDecoder().decode(fromBase64Url(payload))) as Session;
     if (typeof session.email !== "string" || typeof session.exp !== "number") return null;
+    if (typeof session.accessToken !== "string" || !session.accessToken) return null;
     if (session.exp * 1000 < Date.now()) return null;
     return session;
   } catch {

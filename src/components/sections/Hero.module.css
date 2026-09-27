@@ -111,8 +111,7 @@
   cursor: pointer;
   transition:
     box-shadow 0.3s,
-    border-color 0.2s,
-    transform 0.2s;
+    border-color 0.2s;
 }
 
 .primary {
@@ -123,19 +122,18 @@
 
 .primary:hover {
   box-shadow: 0 8px 30px rgba(91, 127, 255, 0.45);
-  transform: translateY(-2px);
 }
 
 .secondary {
   border: 1px solid var(--border-d);
   color: var(--text2);
   background: transparent;
+  display: inline-block;
 }
 
 .secondary:hover {
   border-color: var(--accent-line);
   color: var(--text2);
-  transform: translateY(-2px);
 }
 
 .visual {

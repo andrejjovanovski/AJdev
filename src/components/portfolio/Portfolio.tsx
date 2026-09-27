@@ -1,5 +1,6 @@
 "use client";
 
+import { MotionConfig } from "framer-motion";
 import { useCallback, useEffect, useState } from "react";
 import { BitmojiPeek } from "@/components/layout/BitmojiPeek";
 import { BootLoader } from "@/components/layout/BootLoader";
@@ -34,7 +35,7 @@ const SECTION_IDS = SECTIONS.map((s) => s.id);
 
 export function Portfolio({ content }: { content: PortfolioContent }) {
   const { personal, projects, skills, experience, github, aboutCards, architecture } = content;
-  const { progress, scrolled, activeSection } = useScrollState(SECTION_IDS);
+  const { progress, scrolled, activeSection, goToSection } = useScrollState(SECTION_IDS);
 
   const [booting, setBooting] = useState(true);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -63,7 +64,7 @@ export function Portfolio({ content }: { content: PortfolioContent }) {
   const finishBoot = useCallback(() => setBooting(false), []);
 
   return (
-    <>
+    <MotionConfig reducedMotion="user">
       {booting && <BootLoader onDone={finishBoot} />}
       <ScrollProgress progress={progress} />
       <CustomCursor />
@@ -75,6 +76,7 @@ export function Portfolio({ content }: { content: PortfolioContent }) {
         personal={personal}
         menuOpen={menuOpen}
         onToggleMenu={() => setMenuOpen((open) => !open)}
+        onNavigate={goToSection}
       />
       <MobileMenu
         open={menuOpen}
@@ -99,6 +101,6 @@ export function Portfolio({ content }: { content: PortfolioContent }) {
       <Footer personal={personal} />
       <BitmojiPeek />
       <CommandPalette open={paletteOpen} onOpenChange={setPaletteOpen} personal={personal} />
-    </>
+    </MotionConfig>
   );
 }

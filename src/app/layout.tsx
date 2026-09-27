@@ -3,7 +3,7 @@ import { Inter, JetBrains_Mono } from "next/font/google";
 import { ThemeProvider } from "@/components/theme/ThemeProvider";
 import { themeInitScript } from "@/components/theme/theme-script";
 import { getPersonal } from "@/lib/api/content";
-import { getContent } from "@/lib/server/portal-content";
+import { getSiteSettings } from "@/lib/server/portal-content";
 import "@/styles/globals.css";
 
 const inter = Inter({
@@ -35,17 +35,9 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-/** The theme visitors land on when they haven't chosen one — set in /portal. */
-async function getDefaultTheme() {
-  try {
-    return (await getContent()).defaultTheme;
-  } catch {
-    return "light" as const;
-  }
-}
-
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const defaultTheme = await getDefaultTheme();
+  // The theme visitors land on when they haven't chosen one — set in /portal.
+  const { defaultTheme } = getSiteSettings();
 
   return (
     <html lang="en" suppressHydrationWarning>

@@ -1,61 +1,74 @@
-import { randomBytes, scryptSync, timingSafeEqual } from "node:crypto";
 import { cookies } from "next/headers";
-import { SESSION_COOKIE, verifySessionToken, type Session } from "./session";
+import { BASE_URL } from "@/lib/api/client";
+import {
+  decodeJwtPayload,
+  SESSION_COOKIE,
+  verifySessionToken,
+  type Session,
+  type SessionInput,
+} from "./session";
 
 /**
- * Credential check for the portal. Node-only (scrypt) — import it from route
- * handlers and server components, never from middleware.
+ * Portal sign-in. Credentials are checked by the backend (AJdevBackendApi)
+ * `POST /api/Auth/login`; the returned tokens are carried in the signed session
+ * cookie. Import from route handlers and server components.
  */
 
-const KEY_LENGTH = 64;
+const NAME_ID_CLAIM = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier";
 
-/** `scrypt:<saltHex>:<hashHex>` — what PORTAL_PASSWORD_HASH holds. */
-export function hashPassword(password: string): string {
-  const salt = randomBytes(16);
-  const hash = scryptSync(password, salt, KEY_LENGTH);
-  return `scrypt:${salt.toString("hex")}:${hash.toString("hex")}`;
-}
-
-function equals(a: string, b: string): boolean {
-  const left = Buffer.from(a);
-  const right = Buffer.from(b);
-  // timingSafeEqual throws on length mismatch, so compare lengths separately.
-  return left.length === right.length && timingSafeEqual(left, right);
-}
-
-function matchesPassword(password: string): boolean {
-  const stored = process.env.PORTAL_PASSWORD_HASH ?? "";
-
-  if (stored.startsWith("scrypt:")) {
-    const [, saltHex, hashHex] = stored.split(":");
-    if (!saltHex || !hashHex) return false;
-    const expected = Buffer.from(hashHex, "hex");
-    const actual = scryptSync(password, Buffer.from(saltHex, "hex"), expected.length);
-    return expected.length === actual.length && timingSafeEqual(expected, actual);
-  }
-
-  const plain = process.env.PORTAL_PASSWORD ?? "";
-  return plain.length > 0 && equals(password, plain);
+/** Both keys the .NET token handler might use for the user id claim. */
+function userIdFromToken(accessToken: string): string {
+  const payload = decodeJwtPayload(accessToken) ?? {};
+  const value = payload[NAME_ID_CLAIM] ?? payload.nameid ?? payload.sub;
+  return typeof value === "string" ? value : "";
 }
 
 export const isPortalConfigured = () =>
-  Boolean(
-    process.env.PORTAL_EMAIL &&
-    (process.env.PORTAL_PASSWORD_HASH || process.env.PORTAL_PASSWORD) &&
-    process.env.PORTAL_SESSION_SECRET,
-  );
+  Boolean(BASE_URL && process.env.PORTAL_SESSION_SECRET);
 
-export function verifyCredentials(email: string, password: string): boolean {
-  const expectedEmail = process.env.PORTAL_EMAIL ?? "";
-  if (!expectedEmail || !password) return false;
+/**
+ * Authenticate against the backend. Returns the token bundle for the session
+ * cookie, or null on bad credentials / unreachable backend.
+ */
+export async function loginToBackend(
+  email: string,
+  password: string,
+): Promise<SessionInput | null> {
+  if (!BASE_URL) return null;
 
-  // Both checks always run so a wrong email and a wrong password cost the same.
-  const emailOk = equals(email.trim().toLowerCase(), expectedEmail.trim().toLowerCase());
-  const passwordOk = matchesPassword(password);
-  return emailOk && passwordOk;
+  let res: Response;
+  try {
+    res = await fetch(`${BASE_URL}/api/Auth/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username: email.trim(), password }),
+      cache: "no-store",
+    });
+  } catch (err) {
+    console.error("[portal] backend login request failed", err);
+    return null;
+  }
+
+  if (!res.ok) return null;
+
+  let body: { accessToken?: string; refreshToken?: string };
+  try {
+    body = await res.json();
+  } catch {
+    return null;
+  }
+
+  if (!body.accessToken || !body.refreshToken) return null;
+
+  return {
+    email: email.trim().toLowerCase(),
+    accessToken: body.accessToken,
+    refreshToken: body.refreshToken,
+    userId: userIdFromToken(body.accessToken),
+  };
 }
 
-/** The signed-in account, or null. Read this in every portal server component. */
+/** The signed-in session, or null. Read this in every portal server component. */
 export async function getSession(): Promise<Session | null> {
   const store = await cookies();
   return verifySessionToken(store.get(SESSION_COOKIE)?.value);

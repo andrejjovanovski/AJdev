@@ -1,28 +1,32 @@
 import { NextResponse } from "next/server";
 import { getSession } from "@/lib/server/portal-auth";
+import { PortalAuthError, PortalBackendError } from "@/lib/server/portal-backend";
 import { getContent, saveContent } from "@/lib/server/portal-content";
 
 /** The dashboard is behind middleware, but the data routes check too. */
-async function requireSession() {
-  const session = await getSession();
-  return session ? null : NextResponse.json({ error: "Not authenticated." }, { status: 401 });
+function fail(err: unknown, action: string) {
+  if (err instanceof PortalAuthError) {
+    return NextResponse.json({ error: err.message }, { status: 401 });
+  }
+  console.error(`[portal] ${action} failed`, err);
+  const status = err instanceof PortalBackendError ? 502 : 500;
+  return NextResponse.json({ error: `Could not ${action}.` }, { status });
 }
 
 export async function GET() {
-  const denied = await requireSession();
-  if (denied) return denied;
+  const session = await getSession();
+  if (!session) return NextResponse.json({ error: "Not authenticated." }, { status: 401 });
 
   try {
-    return NextResponse.json(await getContent());
+    return NextResponse.json(await getContent(session));
   } catch (err) {
-    console.error("[portal] loading content failed", err);
-    return NextResponse.json({ error: "Could not load content." }, { status: 502 });
+    return fail(err, "load content");
   }
 }
 
 export async function PUT(request: Request) {
-  const denied = await requireSession();
-  if (denied) return denied;
+  const session = await getSession();
+  if (!session) return NextResponse.json({ error: "Not authenticated." }, { status: 401 });
 
   let payload: unknown;
   try {
@@ -32,9 +36,8 @@ export async function PUT(request: Request) {
   }
 
   try {
-    return NextResponse.json(await saveContent(payload));
+    return NextResponse.json(await saveContent(session, payload));
   } catch (err) {
-    console.error("[portal] saving content failed", err);
-    return NextResponse.json({ error: "Could not save changes." }, { status: 502 });
+    return fail(err, "save changes");
   }
 }

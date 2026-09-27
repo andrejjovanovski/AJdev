@@ -1,5 +1,8 @@
+import { motion } from "framer-motion";
+import { Counter } from "@/components/ui/Counter";
 import { Reveal } from "@/components/ui/Reveal";
 import { SectionHeading } from "@/components/ui/SectionHeading";
+import { fadeUp, staggerContainer, viewportOnce } from "@/lib/motion";
 import type { GithubStats, Personal } from "@/lib/types";
 import styles from "./Github.module.css";
 
@@ -17,21 +20,30 @@ export function Github({ stats, personal }: { stats: GithubStats; personal: Pers
               <Stat value={stats.streak} label="day streak" />
             </div>
 
-            <div className={styles.repos}>
+            <motion.div
+              className={styles.repos}
+              initial="hidden"
+              whileInView="visible"
+              viewport={viewportOnce}
+              variants={staggerContainer(0.08)}
+            >
               {stats.recent.map((repo) => (
-                <a
+                <motion.a
                   key={repo.name}
                   href={`${personal.github}/${repo.name}`}
                   target="_blank"
                   rel="noreferrer"
                   className={styles.repo}
+                  variants={fadeUp}
+                  whileHover={{ y: -4 }}
+                  whileTap={{ scale: 0.98 }}
                 >
                   <div className={styles.repoName}>{repo.name}</div>
                   <div className={styles.repoDesc}>{repo.desc}</div>
                   <div className={styles.repoLang}>● {repo.lang}</div>
-                </a>
+                </motion.a>
               ))}
-            </div>
+            </motion.div>
 
             <div className={styles.footer}>
               <a href={personal.github} target="_blank" rel="noreferrer" className={styles.profile}>
@@ -48,7 +60,9 @@ export function Github({ stats, personal }: { stats: GithubStats; personal: Pers
 function Stat({ value, label }: { value: number; label: string }) {
   return (
     <div>
-      <div className={styles.statValue}>{value.toLocaleString("en-US")}</div>
+      <div className={styles.statValue}>
+        <Counter value={value} />
+      </div>
       <div className={styles.statLabel}>{label}</div>
     </div>
   );

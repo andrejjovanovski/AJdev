@@ -1,15 +1,24 @@
+import {
+  mapExperience,
+  mapPersonal,
+  mapProject,
+  type BackendExperience,
+  type BackendGeneralInformation,
+  type BackendProject,
+} from "@/lib/api/backend-map";
 import * as dummy from "@/lib/dummy-data";
 import type { Job, Personal, PortalContent, Project, SkillGroup, Stat } from "@/lib/types";
+import { portalJson } from "./portal-backend";
+import type { Session } from "./session";
 
 /**
  * Content the /portal dashboard reads and writes.
  *
- * In-memory until the backend exists — same deal as `ratings.ts`: swap `store`
- * for a database call, or set NEXT_PUBLIC_API_URL and these forward to
- * `GET/PUT /content` instead. Kept on globalThis so it survives hot reloads.
+ * Profile, experience and projects live in the backend (AJdevBackendApi) and are
+ * read/written through it. Skills, the stats strip, terminal copy and the
+ * theme/accent settings have no backend table yet, so they stay in an in-memory
+ * store kept on `globalThis` (survives dev hot reloads, resets on restart).
  */
-
-const BACKEND = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") ?? "";
 
 export function defaultContent(): PortalContent {
   return {
@@ -34,37 +43,238 @@ export function defaultContent(): PortalContent {
   };
 }
 
-const globalStore = globalThis as typeof globalThis & { __portalContent?: PortalContent };
+/* ---- local-only fields (no backend store yet) ---------------------------- */
 
-export async function getContent(): Promise<PortalContent> {
-  if (BACKEND) {
-    const res = await fetch(`${BACKEND}/content`, { cache: "no-store" });
-    if (!res.ok) throw new Error(`backend responded ${res.status}`);
-    return sanitize(await res.json());
+type LocalExtras = Pick<
+  PortalContent,
+  "skills" | "stats" | "terminalAbout" | "accentPrimary" | "accentSuccess" | "defaultTheme"
+> & { resume: string };
+
+const globalStore = globalThis as typeof globalThis & { __portalExtras?: LocalExtras };
+
+function getExtras(): LocalExtras {
+  if (!globalStore.__portalExtras) {
+    const d = defaultContent();
+    globalStore.__portalExtras = {
+      skills: d.skills,
+      stats: d.stats,
+      terminalAbout: d.terminalAbout,
+      accentPrimary: d.accentPrimary,
+      accentSuccess: d.accentSuccess,
+      defaultTheme: d.defaultTheme,
+      resume: d.personal.resume,
+    };
   }
-
-  return (globalStore.__portalContent ??= defaultContent());
+  return globalStore.__portalExtras;
 }
 
-export async function saveContent(input: unknown): Promise<PortalContent> {
+/** Site-wide settings the public pages need without a portal session. */
+export function getSiteSettings(): Pick<
+  PortalContent,
+  "defaultTheme" | "accentPrimary" | "accentSuccess"
+> {
+  const e = getExtras();
+  return {
+    defaultTheme: e.defaultTheme,
+    accentPrimary: e.accentPrimary,
+    accentSuccess: e.accentSuccess,
+  };
+}
+
+/* ---- read -------------------------------------------------------------- */
+
+export async function getContent(session: Session): Promise<PortalContent> {
+  const [gi, experiences, projects] = await Promise.all([
+    portalJson<BackendGeneralInformation>(session, "/api/GeneralInformation").catch(() => null),
+    portalJson<BackendExperience[]>(session, "/api/Experience"),
+    portalJson<BackendProject[]>(session, "/api/Project"),
+  ]);
+
+  const extras = getExtras();
+  const personal: Personal = gi
+    ? { ...mapPersonal(gi), resume: extras.resume }
+    : { ...defaultContent().personal, resume: extras.resume };
+
+  return sanitize({
+    personal,
+    stats: extras.stats,
+    skills: extras.skills,
+    experience: (experiences ?? []).map(mapExperience),
+    projects: (projects ?? []).map(mapProject),
+    terminalAbout: extras.terminalAbout,
+    accentPrimary: extras.accentPrimary,
+    accentSuccess: extras.accentSuccess,
+    defaultTheme: extras.defaultTheme,
+  });
+}
+
+/* ---- write ------------------------------------------------------------- */
+
+const csv = (items: string[]) => items.join(",");
+
+function splitName(name: string): { firstName: string; lastName: string } {
+  const parts = name.trim().split(/\s+/);
+  return { firstName: parts[0] ?? "", lastName: parts.slice(1).join(" ") };
+}
+
+async function savePersonal(session: Session, personal: Personal): Promise<void> {
+  const current = await portalJson<BackendGeneralInformation>(
+    session,
+    "/api/GeneralInformation",
+  ).catch(() => null);
+
+  const { firstName, lastName } = splitName(personal.name);
+  const body = {
+    firstName,
+    lastName,
+    role: personal.role,
+    roleDescription: current?.roleDescription ?? "",
+    description: current?.description ?? "",
+    email: personal.email,
+    phone: current?.phone ?? "",
+    location: personal.location,
+    linkedInUrl: personal.linkedin,
+    githubUrl: personal.github,
+  };
+
+  await portalJson(session, "/api/GeneralInformation", {
+    method: current ? "PUT" : "POST",
+    body: JSON.stringify(body),
+  });
+}
+
+function projectBody(p: Project, existing?: { image: string; status: string }) {
+  return {
+    image: existing?.image ?? "",
+    name: p.name,
+    isFeatured: p.featured,
+    category: p.category,
+    slug: p.slug,
+    description: p.description,
+    tags: csv(p.tags),
+    technologies: csv(p.tech),
+    liveUrl: p.live,
+    githubUrl: p.github,
+    status: existing?.status ?? "",
+    caseStudy: {
+      overview: p.overview,
+      problem: p.problem,
+      solution: p.solution,
+      role: p.role,
+      architecture: p.architecture,
+      challenges: p.challenges,
+      result: p.result,
+      learned: p.learned,
+      engineeringDecisions: p.engineering.map((text) => ({ text })),
+    },
+  };
+}
+
+async function saveProjects(session: Session, projects: Project[]): Promise<void> {
+  const current = (await portalJson<BackendProject[]>(session, "/api/Project")) ?? [];
+  const bySlug = new Map(current.map((p) => [p.slug, p]));
+  const submitted = new Set(projects.map((p) => p.slug));
+
+  for (const project of projects) {
+    const existing = bySlug.get(project.slug);
+    if (existing) {
+      await portalJson(session, `/api/Project/updateProject?id=${existing.id}`, {
+        method: "PUT",
+        body: JSON.stringify(projectBody(project, existing)),
+      });
+    } else {
+      await portalJson(session, "/api/Project/createProject", {
+        method: "POST",
+        body: JSON.stringify(projectBody(project)),
+      });
+    }
+  }
+
+  for (const existing of current) {
+    if (!submitted.has(existing.slug)) {
+      await portalJson(session, `/api/Project/deleteProject?id=${existing.id}`, { method: "DELETE" });
+    }
+  }
+}
+
+/** Drafts carry no id, so match existing rows on company + role + period. */
+const expSignature = (e: { company: string; role: string; period: string }) =>
+  `${e.company}|${e.role}|${e.period}`.toLowerCase();
+
+function experienceBody(job: Job, existing?: BackendExperience) {
+  const description = [job.description, ...job.achievements].filter(Boolean).join("\n");
+  return {
+    company: job.company,
+    role: job.role,
+    roleDescription: existing?.roleDescription ?? job.description,
+    description,
+    workingPeriod: job.dates,
+    technologies: csv(job.tech),
+  };
+}
+
+async function saveExperience(session: Session, jobs: Job[]): Promise<void> {
+  const current = (await portalJson<BackendExperience[]>(session, "/api/Experience")) ?? [];
+  const bySig = new Map(
+    current.map((e) => [
+      expSignature({ company: e.company, role: e.role, period: e.workingPeriod }),
+      e,
+    ]),
+  );
+  const submitted = new Set(
+    jobs.map((j) => expSignature({ company: j.company, role: j.role, period: j.dates })),
+  );
+
+  for (const job of jobs) {
+    const sig = expSignature({ company: job.company, role: job.role, period: job.dates });
+    const existing = bySig.get(sig);
+    if (existing) {
+      await portalJson(session, `/api/Experience/${existing.id}`, {
+        method: "PUT",
+        body: JSON.stringify(experienceBody(job, existing)),
+      });
+    } else {
+      await portalJson(session, "/api/Experience", {
+        method: "POST",
+        body: JSON.stringify(experienceBody(job)),
+      });
+    }
+  }
+
+  for (const existing of current) {
+    const sig = expSignature({
+      company: existing.company,
+      role: existing.role,
+      period: existing.workingPeriod,
+    });
+    if (!submitted.has(sig)) {
+      await portalJson(session, `/api/Experience/${existing.id}`, { method: "DELETE" });
+    }
+  }
+}
+
+export async function saveContent(session: Session, input: unknown): Promise<PortalContent> {
   const content = sanitize(input);
 
-  if (BACKEND) {
-    const res = await fetch(`${BACKEND}/content`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(content),
-    });
-    if (!res.ok) throw new Error(`backend responded ${res.status}`);
-    return sanitize(await res.json());
-  }
+  // Local-only fields first — cheap and can't fail.
+  globalStore.__portalExtras = {
+    skills: content.skills,
+    stats: content.stats,
+    terminalAbout: content.terminalAbout,
+    accentPrimary: content.accentPrimary,
+    accentSuccess: content.accentSuccess,
+    defaultTheme: content.defaultTheme,
+    resume: content.personal.resume,
+  };
 
-  globalStore.__portalContent = content;
-  return content;
+  await savePersonal(session, content.personal);
+  await saveProjects(session, content.projects);
+  await saveExperience(session, content.experience);
+
+  return getContent(session);
 }
 
-/* Anything arriving from the browser or the backend goes through here, so a
- * malformed payload can never reach the site's render paths. */
+/* ---- sanitize (unchanged shape guard) -------------------------------- */
 
 const str = (value: unknown, fallback = "") =>
   typeof value === "string" ? value.trim() : fallback;
@@ -103,7 +313,7 @@ export function sanitize(input: unknown): PortalContent {
     email: str(personalRaw.email),
     github: str(personalRaw.github),
     linkedin: str(personalRaw.linkedin),
-    resume: str(personalRaw.resume),
+    resume: str(personalRaw.resume) || defaults.personal.resume,
   };
 
   const stats: Stat[] = list(raw.stats, (s) => ({

@@ -131,7 +131,6 @@
 
 .submit:hover:not(:disabled) {
   box-shadow: 0 8px 26px rgba(91, 127, 255, 0.4);
-  transform: translateY(-2px);
 }
 
 .submit:disabled {

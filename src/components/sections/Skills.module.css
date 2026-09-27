@@ -36,20 +36,23 @@
 }
 
 .skill {
+  display: inline-block;
   padding: 8px 14px;
   border-radius: 10px;
   background: var(--surface-b);
   border: 1px solid var(--border-a);
   font-size: 13px;
   color: var(--text4);
-  transition: all 0.2s;
+  transition:
+    border-color 0.2s,
+    color 0.2s,
+    background 0.2s;
 }
 
 .skill:hover {
   border-color: rgba(91, 127, 255, 0.5);
   color: var(--text);
   background: rgba(91, 127, 255, 0.08);
-  transform: translateY(-2px);
 }
 
 @media (max-width: 768px) {

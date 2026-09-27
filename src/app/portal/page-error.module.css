@@ -1,0 +1,31 @@
+.wrap {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: #0b0d12;
+}
+
+.card {
+  max-width: 420px;
+  padding: 32px;
+  border-radius: 14px;
+  background: #14171f;
+  border: 1px solid #262b36;
+  color: #e6e8ee;
+  text-align: center;
+}
+
+.title {
+  margin: 0 0 12px;
+  font-size: 1.15rem;
+  font-weight: 600;
+}
+
+.body {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.55;
+  color: #9aa1af;
+}

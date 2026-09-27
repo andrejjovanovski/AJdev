@@ -21,6 +21,7 @@
   background: linear-gradient(160deg, rgba(91, 127, 255, 0.08), var(--surface-a));
   border: 1px solid rgba(91, 127, 255, 0.2);
   transition: border-color 0.3s;
+  will-change: transform;
 }
 
 .featured:hover {
@@ -155,14 +156,11 @@
   border: 1px solid var(--border-b);
   display: flex;
   flex-direction: column;
-  transition:
-    border-color 0.25s,
-    transform 0.25s;
+  transition: border-color 0.25s;
 }
 
 .card:hover {
   border-color: rgba(91, 127, 255, 0.4);
-  transform: translateY(-3px);
 }
 
 .cardThumb {

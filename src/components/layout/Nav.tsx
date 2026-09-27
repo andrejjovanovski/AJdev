@@ -1,7 +1,7 @@
 "use client";
 
+import { motion } from "framer-motion";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
-import { scrollToSection } from "@/lib/hooks";
 import type { Personal } from "@/lib/types";
 import styles from "./Nav.module.css";
 
@@ -14,6 +14,7 @@ type NavProps = {
   personal: Personal;
   menuOpen: boolean;
   onToggleMenu: () => void;
+  onNavigate: (id: string) => void;
 };
 
 export function Nav({
@@ -23,11 +24,12 @@ export function Nav({
   personal,
   menuOpen,
   onToggleMenu,
+  onNavigate,
 }: NavProps) {
   return (
     <nav className={`${styles.nav} ${scrolled ? styles.scrolled : ""}`}>
       <div className={styles.inner}>
-        <button type="button" className={styles.logo} onClick={() => scrollToSection("hero")}>
+        <button type="button" className={styles.logo} onClick={() => onNavigate("hero")}>
           AJ<span className={styles.dot}>.</span>dev
         </button>
 
@@ -36,10 +38,17 @@ export function Nav({
             <button
               key={section.id}
               type="button"
-              onClick={() => scrollToSection(section.id)}
+              onClick={() => onNavigate(section.id)}
               className={`${styles.link} ${activeSection === section.id ? styles.active : ""}`}
             >
-              {section.label}
+              {activeSection === section.id && (
+                <motion.span
+                  layoutId="nav-active-pill"
+                  className={styles.activePill}
+                  transition={{ type: "spring", stiffness: 400, damping: 32 }}
+                />
+              )}
+              <span className={styles.linkLabel}>{section.label}</span>
             </button>
           ))}
         </div>

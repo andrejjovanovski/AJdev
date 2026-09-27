@@ -1,7 +1,7 @@
 "use client";
 
-import { useReveal } from "@/lib/hooks";
-import styles from "./Reveal.module.css";
+import { motion } from "framer-motion";
+import { fadeUp, viewportOnce } from "@/lib/motion";
 
 export function Reveal({
   children,
@@ -12,17 +12,16 @@ export function Reveal({
   className?: string;
   delay?: number;
 }) {
-  const { ref, visible } = useReveal<HTMLDivElement>();
-
   return (
-    <div
-      ref={ref}
-      className={[styles.reveal, visible ? styles.visible : "", className]
-        .filter(Boolean)
-        .join(" ")}
-      style={delay ? { transitionDelay: `${delay}ms` } : undefined}
+    <motion.div
+      className={className}
+      custom={delay / 1000}
+      initial="hidden"
+      whileInView="visible"
+      viewport={viewportOnce}
+      variants={fadeUp}
     >
       {children}
-    </div>
+    </motion.div>
   );
 }

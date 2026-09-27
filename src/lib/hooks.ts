@@ -31,12 +31,18 @@ export function useScrollState(sectionIds: string[]) {
   const [progress, setProgress] = useState(0);
   const [scrolled, setScrolled] = useState(false);
   const [activeSection, setActiveSection] = useState(sectionIds[0] ?? "");
+  const suppressUntil = useRef(0);
 
   useEffect(() => {
     const onScroll = () => {
       const docHeight = document.documentElement.scrollHeight - window.innerHeight || 1;
       setProgress(Math.min(100, (window.scrollY / docHeight) * 100));
       setScrolled(window.scrollY > 40);
+
+      // While a click-triggered smooth scroll is in flight, the nav's active
+      // link is already set to the target — don't let the sections it's
+      // scrolling past briefly override it.
+      if (Date.now() < suppressUntil.current) return;
 
       let active = sectionIds[0] ?? "";
       for (const id of sectionIds) {
@@ -51,7 +57,13 @@ export function useScrollState(sectionIds: string[]) {
     return () => window.removeEventListener("scroll", onScroll);
   }, [sectionIds]);
 
-  return { progress, scrolled, activeSection };
+  const goToSection = (id: string) => {
+    setActiveSection(id);
+    suppressUntil.current = Date.now() + 800;
+    scrollToSection(id);
+  };
+
+  return { progress, scrolled, activeSection, goToSection };
 }
 
 export function useMediaQuery(query: string) {

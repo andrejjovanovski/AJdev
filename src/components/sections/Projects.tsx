@@ -1,8 +1,10 @@
+import { motion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
 import { Reveal } from "@/components/ui/Reveal";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Tag, TagList } from "@/components/ui/Tag";
+import { fadeUp, staggerContainer, viewportOnce } from "@/lib/motion";
 import type { Project } from "@/lib/types";
 import styles from "./Projects.module.css";
 
@@ -15,17 +17,25 @@ export function Projects({ projects }: { projects: Project[] }) {
       <div className={styles.container}>
         <SectionHeading eyebrow="01 — SELECTED WORK" title="What I've built." />
 
-        <Reveal>
-          {featured.map((project) => (
-            <FeaturedCard key={project.slug} project={project} />
+        {featured.map((project) => (
+          <Reveal key={project.slug}>
+            <FeaturedCard project={project} />
+          </Reveal>
+        ))}
+
+        <motion.div
+          className={styles.grid}
+          initial="hidden"
+          whileInView="visible"
+          viewport={viewportOnce}
+          variants={staggerContainer(0.1)}
+        >
+          {rest.map((project) => (
+            <ProjectCard key={project.slug} project={project} />
           ))}
+        </motion.div>
 
-          <div className={styles.grid}>
-            {rest.map((project) => (
-              <ProjectCard key={project.slug} project={project} />
-            ))}
-          </div>
-
+        <Reveal>
           <div className={styles.seeAllRow}>
             <Link href="/projects" className={styles.seeAll}>
               See all of my projects →
@@ -40,7 +50,7 @@ export function Projects({ projects }: { projects: Project[] }) {
 function FeaturedCard({ project }: { project: Project }) {
   return (
     <div className={styles.featuredWrap}>
-      <div className={styles.featured}>
+      <motion.div className={styles.featured} whileHover={{ y: -6 }}>
         <div>
           <div className={styles.featuredThumb}>
             {project.image ? (
@@ -91,14 +101,19 @@ function FeaturedCard({ project }: { project: Project }) {
             </Link>
           </div>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 }
 
 function ProjectCard({ project }: { project: Project }) {
   return (
-    <div className={styles.card}>
+    <motion.div
+      className={styles.card}
+      variants={fadeUp}
+      whileHover={{ y: -8, scale: 1.015 }}
+      whileTap={{ scale: 0.98 }}
+    >
       <div className={styles.cardThumb}>
         {project.image && (
           <Image
@@ -134,7 +149,7 @@ function ProjectCard({ project }: { project: Project }) {
           Case Study →
         </Link>
       </div>
-    </div>
+    </motion.div>
   );
 }
 

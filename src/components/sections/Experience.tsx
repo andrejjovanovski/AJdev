@@ -1,6 +1,7 @@
-import { Reveal } from "@/components/ui/Reveal";
+import { motion } from "framer-motion";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { TagList } from "@/components/ui/Tag";
+import { fadeUp, staggerContainer, viewportOnce } from "@/lib/motion";
 import type { Job } from "@/lib/types";
 import styles from "./Experience.module.css";
 
@@ -10,10 +11,31 @@ export function Experience({ jobs }: { jobs: Job[] }) {
       <div className={styles.container}>
         <SectionHeading eyebrow="04 — EXPERIENCE" title="Where I've worked." />
 
-        <Reveal>
+        <motion.div
+          initial="hidden"
+          whileInView="visible"
+          viewport={viewportOnce}
+          variants={staggerContainer(0.15)}
+        >
           {jobs.map((job) => (
-            <div key={`${job.company}-${job.dates}`} className={styles.item}>
-              <span className={styles.marker} />
+            <motion.div
+              key={`${job.company}-${job.dates}`}
+              className={styles.item}
+              variants={fadeUp}
+            >
+              <motion.span
+                className={styles.markerPulse}
+                initial={{ scale: 1, opacity: 0.6 }}
+                animate={{ scale: 1.9, opacity: 0 }}
+                transition={{ duration: 1.8, ease: "easeOut", repeat: Infinity }}
+              />
+              <motion.span
+                className={styles.marker}
+                initial={{ scale: 0 }}
+                whileInView={{ scale: 1 }}
+                viewport={viewportOnce}
+                transition={{ duration: 0.4, ease: "backOut", delay: 0.2 }}
+              />
               <div className={styles.meta}>
                 {job.dates} · {job.location}
               </div>
@@ -30,9 +52,9 @@ export function Experience({ jobs }: { jobs: Job[] }) {
                 ))}
               </div>
               <TagList items={job.tech} />
-            </div>
+            </motion.div>
           ))}
-        </Reveal>
+        </motion.div>
       </div>
     </section>
   );

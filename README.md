@@ -23,23 +23,44 @@ support command history (↑/↓) and tab completion.
 
 Everything the UI reads goes through `src/lib/api/content.ts`. With
 `NEXT_PUBLIC_API_URL` unset it resolves to the sample content in
-`src/lib/dummy-data.ts`; set it and the same functions call the backend, falling
-back to the sample data if a request fails.
+`src/lib/dummy-data.ts`; set it (to the **AJdevBackendApi** .NET project, e.g.
+`http://localhost:5084`) and profile, experience and projects come from the
+backend, falling back to the sample data if a request fails.
 
-Expected endpoints:
+`src/lib/api/backend-map.ts` maps the backend's responses (camelCase entities,
+comma-joined strings, a nested `caseStudy`) onto the types in
+`src/lib/types.ts`.
 
-| Function               | Endpoint              |
-| ---------------------- | --------------------- |
-| `getPersonal`          | `GET /personal`       |
-| `getSkills`            | `GET /skills`         |
-| `getExperience`        | `GET /experience`     |
-| `getProjects`          | `GET /projects`       |
-| `getProject(slug)`     | `GET /projects/:slug` |
-| `getGithubStats`       | `GET /github`         |
-| `getAboutCards`        | `GET /about-cards`    |
-| `getArchitectureNodes` | `GET /architecture`   |
+| Function               | Backend endpoint                    | Source          |
+| ---------------------- | ----------------------------------- | --------------- |
+| `getPersonal`          | `GET /api/GeneralInformation`       | backend         |
+| `getExperience`        | `GET /api/Experience`               | backend         |
+| `getProjects`          | `GET /api/Project`                  | backend         |
+| `getProject(slug)`     | `GET /api/Project/by-slug/{slug}`   | backend         |
+| `getSkills`            | —                                   | dummy data      |
+| `getGithubStats`       | —                                   | dummy data      |
+| `getAboutCards`        | —                                   | dummy data      |
+| `getArchitectureNodes` | —                                   | dummy data      |
 
-Response shapes are the types in `src/lib/types.ts`.
+All calls happen server-side (server components / route handlers). Project
+images referenced with a server-relative path are served from the backend origin,
+so that host is added to `next.config.ts` `images.remotePatterns` when
+`NEXT_PUBLIC_API_URL` is set.
+
+## /portal — content admin
+
+`/portal` signs in against the backend admin user
+(`AppSettings:AdminUsername` / `AppSettings:AdminPassword` in AJdevBackendApi).
+`POST /api/Auth/login` returns a JWT that is carried inside the signed session
+cookie (`PORTAL_SESSION_SECRET` signs the cookie). The session lasts as long as
+the backend token (~1 day), then bounces to the login page.
+
+Saving fans out to the backend: profile → `PUT /api/GeneralInformation`,
+projects → `POST/PUT/DELETE /api/Project/*`, experience → `POST/PUT/DELETE
+/api/Experience/*`. Skills, the stats strip, terminal copy and theme/accent
+settings have no backend table yet, so they live in an in-memory store
+(`src/lib/server/portal-content.ts`, resets on server restart) and are not
+reflected on the public pages.
 
 ## Contact form
 
@@ -62,10 +83,9 @@ The terminal-mode widget stores ratings so their status can be tracked:
 - `POST /api/ratings` — `{ score: 1-5, source }` → `{ id, score, createdAt }`
 - `POST /api/ratings/feedback` — `{ id, feedback }` (only asked for on scores below 4)
 
-`src/lib/server/ratings.ts` keeps them in memory for now. When
-`NEXT_PUBLIC_API_URL` is set it forwards to `POST /ratings` and
-`POST /ratings/:id/feedback` instead — otherwise replace the in-memory `store`
-with a database call.
+`src/lib/server/ratings.ts` keeps them in memory — the backend has no ratings
+endpoint yet, so they are not forwarded. Replace the in-memory `store` with a
+database call when they need to persist.
 
 ## Scripts
 

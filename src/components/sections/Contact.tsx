@@ -1,8 +1,10 @@
 "use client";
 
+import { motion } from "framer-motion";
 import { useState } from "react";
 import { Reveal } from "@/components/ui/Reveal";
 import { sendContactMessage } from "@/lib/api/actions";
+import { fadeUp, staggerContainer, viewportOnce } from "@/lib/motion";
 import type { Personal } from "@/lib/types";
 import styles from "./Contact.module.css";
 
@@ -71,8 +73,16 @@ export function Contact({ personal }: { personal: Personal }) {
             </div>
           </div>
 
-          <form className={styles.form} onSubmit={handleSubmit} noValidate>
-            <div>
+          <motion.form
+            className={styles.form}
+            onSubmit={handleSubmit}
+            noValidate
+            initial="hidden"
+            whileInView="visible"
+            viewport={viewportOnce}
+            variants={staggerContainer(0.08)}
+          >
+            <motion.div variants={fadeUp}>
               <label htmlFor="cf-name" className={styles.label}>
                 NAME
               </label>
@@ -85,9 +95,9 @@ export function Contact({ personal }: { personal: Personal }) {
                 placeholder="Jane Doe"
                 className={styles.input}
               />
-            </div>
+            </motion.div>
 
-            <div>
+            <motion.div variants={fadeUp}>
               <label htmlFor="cf-email" className={styles.label}>
                 EMAIL
               </label>
@@ -103,9 +113,9 @@ export function Contact({ personal }: { personal: Personal }) {
               {emailInvalid && (
                 <div className={styles.fieldError}>Enter a valid email address.</div>
               )}
-            </div>
+            </motion.div>
 
-            <div>
+            <motion.div variants={fadeUp}>
               <label htmlFor="cf-message" className={styles.label}>
                 MESSAGE
               </label>
@@ -118,20 +128,25 @@ export function Contact({ personal }: { personal: Personal }) {
                 placeholder="Tell me about your project..."
                 className={styles.textarea}
               />
-            </div>
+            </motion.div>
 
             {status === "error" && <div className={styles.formError}>{error}</div>}
 
-            <button
+            <motion.button
               type="submit"
               disabled={status === "sending"}
               className={`${styles.submit} ${status === "sent" ? styles.sent : ""}`}
+              variants={fadeUp}
+              whileHover={status === "idle" ? { y: -2 } : undefined}
+              whileTap={status === "idle" ? { scale: 0.97 } : undefined}
+              animate={status === "sent" ? { scale: [1, 1.05, 1] } : undefined}
+              transition={{ duration: 0.35, ease: "easeOut" }}
             >
               {status === "sending" && "Sending..."}
               {status === "sent" && "Message Sent ✓"}
               {(status === "idle" || status === "error") && "Send Message →"}
-            </button>
-          </form>
+            </motion.button>
+          </motion.form>
         </div>
       </Reveal>
     </section>

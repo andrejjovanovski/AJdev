@@ -1,6 +1,18 @@
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") ?? "";
+export const BASE_URL = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") ?? "";
 
 export const hasBackend = BASE_URL.length > 0;
+
+/**
+ * Backend entities store server-relative asset paths (e.g. `/images/projects/x.png`)
+ * that are served by the API host, not by Next. Resolve them against the backend
+ * origin; leave absolute URLs and empty values untouched.
+ */
+export const resolveAsset = (path: string | null | undefined): string | undefined => {
+  if (!path) return undefined;
+  if (/^https?:\/\//i.test(path)) return path;
+  if (path.startsWith("/") && BASE_URL) return `${BASE_URL}${path}`;
+  return path;
+};
 
 export class ApiError extends Error {
   constructor(

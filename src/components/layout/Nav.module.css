@@ -50,6 +50,7 @@
 }
 
 .link {
+  position: relative;
   padding: 9px 16px;
   border-radius: 999px;
   font-family: inherit;
@@ -59,19 +60,28 @@
   color: var(--text3);
   background: transparent;
   border: none;
-  transition:
-    color 0.2s,
-    background 0.2s;
+  transition: color 0.2s;
 }
 
 .link:hover {
   color: var(--text);
-  background: var(--hover-bg);
 }
 
 .active {
   color: var(--text);
+}
+
+.activePill {
+  position: absolute;
+  inset: 0;
+  border-radius: 999px;
   background: var(--hover-bg);
+  z-index: 0;
+}
+
+.linkLabel {
+  position: relative;
+  z-index: 1;
 }
 
 .actions {
