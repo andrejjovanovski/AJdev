@@ -240,6 +240,8 @@ export function HeroTerminal({ personal }: { personal: Personal }) {
       style={{
         width: box.width ? `${box.width}px` : "100%",
         height: box.height ? `${box.height}px` : "auto",
+        // Unresized it grows with its output — cap it (and keep it on screen) so the body scrolls.
+        maxHeight: `min(${SIZE.maxH}px, 80vh)`,
         marginLeft: box.left,
         marginTop: box.top,
       }}

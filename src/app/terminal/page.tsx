@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { TerminalMode } from "@/components/terminal/TerminalMode";
-import { getPortfolioContent } from "@/lib/api/content";
+import { getAskFaq, getPortfolioContent } from "@/lib/api/content";
 
 export const metadata: Metadata = {
   title: "Terminal Mode — Andrej Jovanovski",
@@ -8,7 +8,7 @@ export const metadata: Metadata = {
 };
 
 export default async function TerminalPage() {
-  const content = await getPortfolioContent();
+  const [content, faq] = await Promise.all([getPortfolioContent(), getAskFaq()]);
 
-  return <TerminalMode content={content} />;
+  return <TerminalMode content={content} faq={faq} />;
 }

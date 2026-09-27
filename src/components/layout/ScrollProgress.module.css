@@ -10,5 +10,6 @@
 
 .bar {
   height: 100%;
+  transform-origin: 0 50%;
   background: linear-gradient(90deg, #5b7fff, #8b7fff);
 }

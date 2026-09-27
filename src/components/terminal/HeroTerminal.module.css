@@ -54,6 +54,7 @@
   line-height: 1.85;
   flex: 1;
   overflow-y: auto;
+  overscroll-behavior: contain;
   cursor: text;
 }
 

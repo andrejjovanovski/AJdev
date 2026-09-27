@@ -95,3 +95,13 @@ export type RatingPayload = {
   feedback?: string;
   source?: "terminal" | "portfolio";
 };
+
+/** A hand-written answer for the terminal `/ask` assistant. */
+export type AskFaq = {
+  /** Single words that point at this answer — each one found in a question adds a point. */
+  keywords: string[];
+  /** Whole phrases that count double, e.g. "how was this built". */
+  phrases?: string[];
+  /** Lines printed as the reply. */
+  answer: string[];
+};

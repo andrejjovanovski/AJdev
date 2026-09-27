@@ -2,6 +2,7 @@ import * as dummy from "@/lib/dummy-data";
 import type {
   AboutCard,
   ArchitectureNode,
+  AskFaq,
   GithubStats,
   Job,
   Personal,
@@ -69,6 +70,7 @@ export const getGithubStats = async (): Promise<GithubStats> => dummy.github;
 export const getAboutCards = async (): Promise<AboutCard[]> => dummy.aboutCards;
 export const getArchitectureNodes = async (): Promise<ArchitectureNode[]> =>
   dummy.architectureNodes;
+export const getAskFaq = async (): Promise<AskFaq[]> => dummy.askFaq;
 
 export async function getProject(slug: string): Promise<Project | null> {
   if (hasBackend) {

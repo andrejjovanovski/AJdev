@@ -35,7 +35,7 @@ const SECTION_IDS = SECTIONS.map((s) => s.id);
 
 export function Portfolio({ content }: { content: PortfolioContent }) {
   const { personal, projects, skills, experience, github, aboutCards, architecture } = content;
-  const { progress, scrolled, activeSection, goToSection } = useScrollState(SECTION_IDS);
+  const { scrolled, activeSection, goToSection } = useScrollState(SECTION_IDS);
 
   const [booting, setBooting] = useState(true);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -66,7 +66,7 @@ export function Portfolio({ content }: { content: PortfolioContent }) {
   return (
     <MotionConfig reducedMotion="user">
       {booting && <BootLoader onDone={finishBoot} />}
-      <ScrollProgress progress={progress} />
+      <ScrollProgress />
       <CustomCursor />
 
       <Nav

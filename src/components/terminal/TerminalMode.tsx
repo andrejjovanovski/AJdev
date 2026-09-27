@@ -1,12 +1,15 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { RatingWidget } from "@/components/rating/RatingWidget";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
 import { useTheme } from "@/components/theme/ThemeProvider";
 import { sendContactMessage } from "@/lib/api/actions";
 import type { PortfolioContent } from "@/lib/api/content";
+import type { AskFaq } from "@/lib/types";
+import { createAsk } from "./ask";
+import { AskThinking } from "./AskThinking";
 import { TerminalOutput } from "./TerminalOutput";
 import { useTerminal, type TerminalIO } from "./useTerminal";
 import type { Command } from "./types";
@@ -15,6 +18,9 @@ import styles from "./TerminalMode.module.css";
 
 const PROMPT = "andrej@dev ";
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const ASK_EXIT = new Set(["/cancel", "/exit", "/quit", "/done", "exit", "quit", "bye"]);
+/** Delay between streamed lines of an /ask reply. */
+const REPLY_LINE_MS = 70;
 
 type ContactStep = "name" | "email" | "message" | "confirm";
 type ContactData = { name: string; email: string; message: string };
@@ -24,10 +30,11 @@ const emptyContact: ContactData = { name: "", email: "", message: "" };
 const BANNER = [
   line("terminal mode — full portfolio, one command line", "accent"),
   line("type /help to see everything you can do, or /exit to go back"),
+  line("new: /ask — ask me anything about my work", "faint"),
   line(""),
 ];
 
-export function TerminalMode({ content }: { content: PortfolioContent }) {
+export function TerminalMode({ content, faq }: { content: PortfolioContent; faq: AskFaq[] }) {
   const router = useRouter();
   const { theme, toggleTheme } = useTheme();
   const { personal, projects, experience, skills } = content;
@@ -45,6 +52,54 @@ export function TerminalMode({ content }: { content: PortfolioContent }) {
       line("What's your name?", "accent"),
     ]);
   }, []);
+
+  const ask = useMemo(() => createAsk(content, faq), [content, faq]);
+  const [asking, setAsking] = useState(false);
+  const [replyPhase, setReplyPhase] = useState<"idle" | "thinking" | "typing">("idle");
+  const replyTimers = useRef<ReturnType<typeof setTimeout>[]>([]);
+
+  useEffect(() => () => replyTimers.current.forEach(clearTimeout), []);
+
+  /** Fakes a model: "thinks" for 1–2s, then streams the answer in line by line. */
+  const reply = useCallback(
+    (print: TerminalIO["print"], question: string) => {
+      const answer = [...ask(question), line("")];
+      const thinkFor = 1000 + Math.random() * 1000;
+      const later = (fn: () => void, ms: number) => replyTimers.current.push(setTimeout(fn, ms));
+
+      setReplyPhase("thinking");
+      later(() => setReplyPhase("typing"), thinkFor);
+      answer.forEach((l, i) => later(() => print([l]), thinkFor + i * REPLY_LINE_MS));
+      later(
+        () => {
+          replyTimers.current = [];
+          setReplyPhase("idle");
+        },
+        thinkFor + answer.length * REPLY_LINE_MS,
+      );
+    },
+    [ask],
+  );
+
+  const startAskFlow = useCallback(
+    (print: TerminalIO["print"], question: string) => {
+      // `/ask what's your stack?` answers once without entering ask mode.
+      if (question.trim()) {
+        reply(print, question);
+        return;
+      }
+      setAsking(true);
+      print([
+        line(
+          "Ask me anything about my work — projects, stack, experience, how to reach me.",
+          "secondary",
+        ),
+        line("(I'm still learning, so be gentle. type /cancel to go back to commands)", "faint"),
+        line(""),
+      ]);
+    },
+    [reply],
+  );
 
   const createCommands = useCallback(
     ({ print, clear }: TerminalIO): Command[] => {
@@ -65,6 +120,7 @@ export function TerminalMode({ content }: { content: PortfolioContent }) {
               line("  /project --<slug> — project details, e.g. /project --kumanovo-transit"),
               line("  /experience   — work history"),
               line("  /skills       — tech stack"),
+              line("  /ask          — ask me anything (beta)"),
               line("  /contact      — send me a message"),
               line("  /theme        — toggle light/dark"),
               line("  /github       — open github"),
@@ -143,6 +199,7 @@ export function TerminalMode({ content }: { content: PortfolioContent }) {
               ]),
             ),
         },
+        { cmd: "ask", desc: "ask me anything", run: (question) => startAskFlow(print, question) },
         { cmd: "contact", desc: "send me a message", run: () => startContactFlow(print) },
         {
           cmd: "theme",
@@ -164,7 +221,17 @@ export function TerminalMode({ content }: { content: PortfolioContent }) {
         },
       ];
     },
-    [personal, projects, experience, skills, router, theme, toggleTheme, startContactFlow],
+    [
+      personal,
+      projects,
+      experience,
+      skills,
+      router,
+      theme,
+      toggleTheme,
+      startContactFlow,
+      startAskFlow,
+    ],
   );
 
   const handleContactAnswer = useCallback(
@@ -248,11 +315,37 @@ export function TerminalMode({ content }: { content: PortfolioContent }) {
     [step],
   );
 
+  const handleAskAnswer = useCallback(
+    (raw: string, { print, clear }: TerminalIO) => {
+      const value = raw.trim();
+      if (!value) return;
+      print([line(`${PROMPT}? ${value}`)]);
+
+      const command = value.toLowerCase();
+      if (ASK_EXIT.has(command)) {
+        setAsking(false);
+        print([line("left ask mode — back to commands (/help to list them).", "faint")]);
+        return;
+      }
+      if (command === "/clear") {
+        clear();
+        return;
+      }
+      if (command.startsWith("/")) {
+        print([line("you're in ask mode — type /cancel to get back to commands", "error")]);
+        return;
+      }
+
+      reply(print, value);
+    },
+    [reply],
+  );
+
   const terminal = useTerminal({
     createCommands,
     prompt: `${PROMPT}❯ `,
     initialLines: BANNER,
-    interceptor: step ? handleContactAnswer : undefined,
+    interceptor: step ? handleContactAnswer : asking ? handleAskAnswer : undefined,
   });
 
   const { focus } = terminal;
@@ -260,6 +353,16 @@ export function TerminalMode({ content }: { content: PortfolioContent }) {
   useEffect(() => {
     focus();
   }, [focus]);
+
+  const replying = replyPhase !== "idle";
+  const { bodyRef } = terminal;
+
+  // The indicator isn't a printed line, so the auto-scroll in useTerminal misses it.
+  useEffect(() => {
+    const body = bodyRef.current;
+    if (body) body.scrollTop = body.scrollHeight;
+    if (!replying) focus();
+  }, [replying, bodyRef, focus]);
 
   return (
     <div className={styles.page}>
@@ -277,9 +380,11 @@ export function TerminalMode({ content }: { content: PortfolioContent }) {
         <div ref={terminal.bodyRef} className={styles.body} onClick={focus}>
           <TerminalOutput lines={terminal.lines} />
 
-          <div className={styles.inputRow}>
+          {replyPhase === "thinking" && <AskThinking />}
+
+          <div className={styles.inputRow} style={replying ? { display: "none" } : undefined}>
             <span className={styles.promptUser}>{PROMPT}</span>
-            <span className={styles.promptChar}>{step ? "?" : "❯"}</span>
+            <span className={styles.promptChar}>{step || asking ? "?" : "❯"}</span>
             <input
               ref={terminal.inputRef}
               value={terminal.input}

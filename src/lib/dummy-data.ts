@@ -1,6 +1,7 @@
 import type {
   AboutCard,
   ArchitectureNode,
+  AskFaq,
   GithubStats,
   Job,
   Personal,
@@ -388,5 +389,36 @@ export const architectureNodes: ArchitectureNode[] = [
     id: "database",
     label: "Database",
     details: ["Relational modeling", "Transactions", "Query optimization"],
+  },
+];
+
+/**
+ * Configured answers for `/ask` in terminal mode. Everything else the assistant
+ * says is generated from the data above, so only add what it can't derive —
+ * questions that match nothing get a "still learning" reply.
+ */
+export const askFaq: AskFaq[] = [
+  {
+    keywords: ["bot", "chatbot", "ai", "chatgpt", "gpt", "llm", "robot", "human", "openai", "claude"],
+    phrases: ["are you real", "how do you work", "who built you", "who made you"],
+    answer: [
+      "I'm a tiny, rule-based version of Andrej — no LLM, no API keys, no GPUs harmed.",
+      "I match your question against the portfolio's own data. Fast, free, and occasionally confused.",
+    ],
+  },
+  {
+    keywords: ["vercel", "hosted", "hosting"],
+    phrases: ["this site", "this website", "this portfolio", "how was this built", "built this site"],
+    answer: [
+      "This portfolio is built with Next.js, React and TypeScript, and deployed on Vercel.",
+      "Its content is managed from a custom .NET dashboard — try: tell me about the portfolio dashboard",
+    ],
+  },
+  {
+    keywords: ["secret", "easter", "egg", "hidden"],
+    answer: [
+      "Easter eggs? Never heard of them.",
+      "...but the homepage terminal might respond to /coffee, /joke or /sudo.",
+    ],
   },
 ];
